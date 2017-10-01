@@ -105,7 +105,7 @@ The type of genotype file used as input, choose between VCF and GEN. Default is 
 
 * To specify the p-value thresholds of the score:
 ```
-  --thresholds 0.5 0.2 0.1 0.05, 0.01 0.001 0.0001
+  --thresholds 0.5 0.2 0.1 0.05 0.01 0.001 0.0001
 ```
 Enter one or more float numbers separated by space. Default is 0.5 0.2 0.1 0.05 0.01 0.001 0.0001.
 
