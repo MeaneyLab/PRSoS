@@ -1,42 +1,42 @@
 # PRS-on-SPARK
-PRS-on-SPARK (PRSoS) generates polygenic risk scores for large genotype data, including imputed genotype dosages.
+PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype dosages. It can use multi-core to increase processing efficiency (i.e., reduce processing time).
 
 
 
 ## Installation
 
-To clone the repository, use :
+To clone the repository, use:
 ```
 git clone https://github.com/seriousNel/PRS-on-SPARK.git
 ```
 
 ## Software requirements
 
-The notebooks and scripts require the following to run :
+The notebooks and scripts require the following to run:
 + spark-2.0.0 +
-+ Pyhon 2.7
++ Python 2.7 (not Python 3.0)
 
 Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
 
-The prerequisite to install spark are :
+The prerequisite to install spark are:
 + java8 (oracle)
 + scala 
 + sbt
 
-Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type :
+Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type:
 ```
 cd PRS-on-SPARK
 pip install -r requirements.txt
 ```
 
-## What this pipeline does :
-+ Calculate PRS from a genotype file (in .gen or .vcf format) and a GWAS file
-+ Correct the strand alignment discrepancies between genotype and GWAS data. 
+## What this pipeline does
++ Match the strand alignment between genotype and GWAS data, and then
++ Calculate PRS from the genotype data set (in .gen or .vcf file format), weighted by the associated effect size in the GWAS, using specified or an indicated range of association p-value thresholds
 
-## What this pipeline cannot do :
+## What this pipeline cannot do
 + Perform quality control of genotype data
 
-## Default format :
+## Default format
 ### GWAS
 By default, the GWAS should have the same format as that of a GWAS file obtained from Psychiatric Genomics Consortium (PGC). 
 
@@ -50,31 +50,35 @@ By default, the GWAS should have the same format as that of a GWAS file obtained
 
 
 
-You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. More details below.
+You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. Header names can be anything and it is not required. More details below.
 
 ### .gen file
-from [www.shapeit.fr](http://www.shapeit.fr/pages/m02_formats/gensample.html) :
-A .gen file is a SPACE delimited file. Each line corresponds to a single SNP. The first 5 columns are:
+A full description can be found on [www.shapeit.fr](http://www.shapeit.fr/pages/m02_formats/gensample.html). A .gen file is a space-delimited file with each line corresponding to a single SNP. The first five columns are:
+
 Chromosome number [integer]
+
 SNP ID [string]
+
 SNP physical position (bp) [integer]
+
 First allele [string]
+
 Second allele [string]
+
+Sixth column onwards contain the genotyping data, where every three columns indicates the genotype (or posterior genotype probabilities in the case of using imputed genotype data) of the subject sample. The first of the three columns indicates the likelihood that the sample carries homozygous first allele, the middle column indicates the likelihood that the sample carries heterozygous alleles, and the last column indicates the likelihood that the sample carries homozygous second allele.
 
 ### .vcf file 
 This is a default format for the genotype data returned from [Sanger Institute](https://imputation.sanger.ac.uk/). 
 Details about the format can be found [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). 
-PRSoS uses posterior genotype probabilities (FORMAT/GP) as genotyping data.
+PRSoS uses posterior genotype probabilities (see FORMAT = GP) as genotype input.
 
 ### Output file
-By default, the output format of PRS results and SNP logs is csv. 
+The output format of PRS results and SNP logs is comma-delimited. 
 
 ## Running command-line script PRS_run.py
 ### Parameters
 
-
-
-A description of the parameters for the script can be obtained by typing : 
+A description of the parameters for the script can be obtained by typing: 
 ```
 python PRS_run.py --help
 ```
@@ -85,92 +89,45 @@ To run the script, use ```spark-submit```. You can add other parameters for spar
 ```
 spark-submit PRS_run.py 
 ```
-Followed by three positional parameters (mandatory) :
+Followed by three positional parameters (mandatory):
 ```
   GENO                  Name of the Genotype files, can be a name or path, or name patterns with '*'
   GWAS                  Name of the GWAS file, can be a name or path.
   OUTPUT                The path and name for the output file.
 ```
-Followed by some optional parameters. By default, the pipeline assumes the following : 
+Followed by some optional parameters. By default, the pipeline assumes the following: 
 
-* To specify the format of genotype file :
+* To specify the format of genotype file:
 ```
   --filetype VCF  
 ```
 The type of genotype file used as input, choose between VCF and GEN. Default is VCF.
 
-* To specify the p-value thresholds of the score :
+* To specify the p-value thresholds of the score:
 ```
   --thresholds 0.5 0.2 0.1 0.05, 0.01 0.001 0.0001
 ```
 Enter one or more float numbers separated by space. Default is 0.5 0.2 0.1 0.05 0.01 0.001 0.0001.
 
-Alternatively you can specify a sequence of thresholds to use :
+Alternatively you can specify a sequence of thresholds to use:
 
 ```
   --threshold_seq 0.1 0.5 0.01
 ```
-After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. The above example would yield the sequence 0.1,0.11,0.12.....0.49,0.5. Note the interval is inclusive of the endpoints.
-  
-  --GWAS_no_header      Adding this parameter signals that there is no header 
-                        in the GWAS data input. The default is to assume that 
-                        GWAS has column names.
-                        
-  --log_or              Adding this parameter tells the script to log (base=10) 
-                        the effect sizes provided in the GWAS summary-level 
-                        data. For example, this would be applied to odds ratios 
-                        to get log odds or the beta values of logistic 
-                        regression.
-                        
-  --no_check_ref        Adding this option tells the script to not check 
-                        reference allele when determining genoypte calls. 
-                        Default is checking.
-                        
-  --no_maf              The pipeline calculates the allele frequencies in the 
-                        genotype population by default, which is used to help 
-                        retain as many ambiguous SNPs as possible by comparing 
-                        the allele frequencies in the GWAS to make the best 
-                        estimate of the strand alignment. Use this flag to 
-                        disable this feature and all ambiguous SNPs that would 
-                        have been used for PRS caculation will be discarded.
-                        
-  --snp_log             Add this flag to record the SNPs that are used at each 
-                        threshold. It will also report whether the a1 or a2 
-                        allele in the genotype data was used as reference for 
-                        the risk effect, indicated as 'keep' or 'flip'. Any SNPs
-                        that meet the p-value threshold criteria but has allele 
-                        names that do not match the allele names in the GWAS 
-                        description are indicated in the 'discard' column. This 
-                        record will be saved to a file with the name specified 
-                        in the Output flag, with .snplog as file extension.
+After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note the interval is inclusive of the endpoints.
 
-  --sample_file SAMPLE_FILE
-                        Path and name of the file that contain the sample
-                        labels. It is assumed that the sample labels are
-                        already in the same order as in the genotype file.
-                        
-  --sample_delim SAMPLE_DELIM
-                        Delimiter of the sample file. Default is comma. Set 
-                        quotation marks around the delimiter when applied.
-
-
-
-
-### Examples :
+### Examples
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 ```
-spark-submit PRS_run.py "VCF_number*.vcf" pgc.mdd.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds  0.2 0.1 0.05
+spark-submit PRS_run.py "VCF_number*.vcf" pgc.mdd.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds 0.2 0.1 0.05
 ```
 To calculate PRS from a series of .gen files, without checking allele alignments, using a GWAS with no header, and not transform the risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "VCF_number*.vcf" pgc.mdd.clump.txt output.csv --filetype GEN --sample_file samplefile.csv --sample_file_id 0 --no_check_ref --GWAS_no_header --thresholds 0.2 0.1 0.05
+spark-submit PRS_run.py "GEN_number*.gen" pgc.mdd.clump.txt output.csv --filetype GEN --sample_file samplefile.csv --sample_file_id 0 --no_check_ref --GWAS_no_header --thresholds 0.2 0.1 0.05
 ```
 
-
-
-
-### Full list of parameters when type `python PRS_run.py --help` :
+### Full list of parameters when type `python PRS_run.py --help`
 ```
 positional arguments:
   GENO                  Name of the genotype files, can be a name or path, or
@@ -179,7 +136,7 @@ positional arguments:
   OUTPUT                The path and name stem for the output files. One name
                         will be used for the score output, the snp log 
                         (optional), and the regression output. This is similar 
-                        to the --out flag in Plink.
+                        to the --out flag in PLINK.
 
 optional arguments:
   -h, --help            Show this help message and exit.
