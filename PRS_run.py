@@ -19,7 +19,7 @@ import time
 import argparse
 
 
-# packages for the regression
+# Packages for the regression
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -108,7 +108,7 @@ def filterGWASByP_DF(GWASdf, pcolumn,  pHigh, oddscolumn,idcolumn, pLow=0, logOd
     return GWASoddspair
 
 
-# checking for reference allele alignment (i.e., is the GWAS A1 the same as A1 in the genotype)
+# Checking for reference allele alignment (i.e., is the GWAS A1 the same as A1 in the genotype)
 def checkAlignmentDF(dataframe, bpMap):
     snpid=dataframe[0]
     genoA1=dataframe[1].strip()
@@ -156,7 +156,7 @@ def checkAlignmentDF(dataframe, bpMap):
 
     return (snpid,flag)
 
-# check reference allele alignment without using A1F in the GWAS. Ambiguous SNPS are automatically discarded
+# Check reference allele alignment without using A1F in the GWAS. Ambiguous SNPS are automatically discarded
 def checkAlignmentDFnoMAF(dataframe, bpMap):
     snpid=dataframe[0]
     genoA1=dataframe[1].strip()
@@ -194,15 +194,13 @@ def getSampleNames(sampleFileName, sampleDelim, sampleIDCol, skip=0):
             counter+=1
     return labels
 
-# remove duplicates from flag list
+# Remove duplicates from flag list
 def rmDup(checkList):
     checkCount=Counter([x[0] for x in checkList])
     nodupMap={snp:flag for snp, flag in checkList if checkCount[snp]==1}
     return nodupMap
 
-# output each PRS for each sample in the form of [sample, *scores],
-# and a list of p-values that are in the order of the scores from each p-value
-
+# Output each PRS for each sample in the form of [sample, *scores]
 def writePRS(prsResults, outputFile, logger, samplenames=None, dialect=None):
     scorefile=outputFile+".score"
     onescore=list(prsResults.values())[0][1]
@@ -241,6 +239,7 @@ def writePRS(prsResults, outputFile, logger, samplenames=None, dialect=None):
 
     return outputdata
 
+# Output SNP log
 def writeSNPlog(snpidmap, outputFile, logger, flagMap=None, dialect=None):
     snplogfile=outputFile+".snplog"
     outputdata=[]
@@ -251,7 +250,7 @@ def writeSNPlog(snpidmap, outputFile, logger, flagMap=None, dialect=None):
         sortedlist=sorted(snpidmap[pvalue])
         outputdata.append(["PRS_"+str(pvalue)]+sortedlist+[""]*(maxLen-len(sortedlist)))
 
-        # get the flag for each snp in the snp log
+        # get the flag for each SNP in the SNP log
         if flagMap:
             flaglist=["PRS_"+str(pvalue)+"_flag"]+[flagMap[snpid] for snpid in sortedlist]+[""]*(maxLen-len(sortedlist))
             outputdata.append(flaglist)
@@ -335,7 +334,6 @@ def regression(scoreMap,phenoFile, phenoDelim, phenoColumns, phenoNoHeader, cova
         r2All.append(r2list)
 
     logger.info("All regression finished")
-    #return phenotypes, thresholds, r2All, pAll
     return phenotypes, thresholds, r2All, pAll
 
 
@@ -348,11 +346,11 @@ if __name__=="__main__":
     from pyspark import SparkConf, SparkContext
     # ATTN: python index starts at 0, so if you want to specify the second column, use 1
     # Define column number for contents in GWAS
-    parser = argparse.ArgumentParser(description='PRS Script Parameters', version='1.7')
+    parser = argparse.ArgumentParser(description='PARAMETERS', version='1.7')
     # Mandatory positional arguments
     parser.add_argument("GENO", action="store", help="Name of the genotype files, can be a name or path, or name patterns with wildcard character.")
     parser.add_argument("GWAS", action="store", help="Name of the GWAS file, can be a name or path.")
-    parser.add_argument("Output", action="store", help="The path and name stem for the output files. One name will be used for the score output, the snp log (optional), and the regression output. This is similar to the --out flag in Plink.")
+    parser.add_argument("OUTPUT", action="store", help="The path and name stem for the output files. One name will be used for the score output, the snp log (optional), and the regression output. This is similar to the --out flag in PLINK.")
 
     # Optional arguments
     parser.add_argument("--gwas_id", action="store", default=0, dest="gwas_id",type=int, help="Column number in your GWAS that contains SNP ID, with first column being 0. Default is 0.")
@@ -373,7 +371,7 @@ if __name__=="__main__":
 
     parser.add_argument("--log_or", action="store_true", default=False, dest="log_or", help="Add this flag to log (natural base) the effect sizes provided in the GWAS summary-level data. For example, this would be applied to odds ratios to get log odds or the beta values of logistic regression.")
 
-    parser.add_argument("--no_check_ref", action="store_false", default=True, dest="check_ref", help="Add this flag to not check reference allele when determining genotype calls. Default is checking.")
+    parser.add_argument("--no_check_ref", action="store_false", default=True, dest="check_ref", help="Adding this option disables checking reference alleles between GENO and GWAS when determining genotype calls. When this is used, first allele column in GENO and GWAS will be used for scoring.")
 
     parser.add_argument("--app_name", action="store", default="PRS", dest="app_name", help="Give your spark application a name. Default is PRS.")
 
@@ -387,7 +385,7 @@ if __name__=="__main__":
 
     parser.add_argument("--no_maf", action="store_false", default=True, dest="use_maf", help="The pipeline calculates the allele frequencies in the genotype population by default, which is used to help retain as many ambiguous SNPs as possible by comparing the allele frequencies in the GWAS to make the best estimate of the strand alignment. Use this flag to disable this feature and all ambiguous SNPs that would have been used for PRS caculation will be discarded.")
 
-    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect, indicated as 'keep' or 'flip'. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the Output flag, with .snplog as file extension.")
+    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect, indicated as 'keep' or 'flip'. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
 
     parser.add_argument("--check_dup", action="store_true", default=False, dest="checkdup", help="Add this flag to discard SNPs that are duplicated, which will take extra time. By default, the script will assume there are no duplicated SNPs.")
 
@@ -405,43 +403,43 @@ if __name__=="__main__":
 
     results=parser.parse_args()
 
-    outputPath=results.Output
+    outputPath=results.OUTPUT
 
     """ configure logging control """
 
     logger = logging.getLogger(results.app_name)
     logger.setLevel(logging.DEBUG)
-    # create file handler which logs even debug messages
+    # Create file handler which logs even debug messages
     fh = logging.FileHandler(outputPath+".log")
     fh.setLevel(logging.DEBUG)
-    # create console handler with a higher log level
+    # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    # create formatter and add it to the handlers
+    # Create formatter and add it to the handlers
     formatter1 = logging.Formatter('%(asctime)s %(levelname)s : %(message)s')
     formatter2 = logging.Formatter('%(asctime)s %(levelname)s : %(message)s')
 
     ch.setFormatter(formatter1)
     fh.setFormatter(formatter2)
-    # add the handlers to the logger
+    # Add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-
-    # type of files, VCF or GEN
+    # Type of files, VCF or GEN
     filetype=results.filetype
 
-    # log file
+    # Log file
     snp_log=results.snp_log
-    ## Setting parameters
+    
+    # Setting parameters
     gwas_id=results.gwas_id    # column of SNP ID
-    gwas_p=results.gwas_p     # column of P value
+    gwas_p=results.gwas_p      # column of P value
     gwas_or=results.gwas_or    # column of odds ratio
     gwas_a1=results.gwas_a1    # column of A1 in the GWAS
-    gwas_a2=results.gwas_a2
+    gwas_a2=results.gwas_a2    # column of A2 in the GWAS
     gwas_a1f=results.gwas_a1f  # column index of A1 frequency in the GWAS
 
-    # define column number for contents in genfile
+    # Define column number for contents in genfile
     if filetype.lower()=="vcf":
         geno_id= 2 # column number with rsID
         geno_start=9 # column number of the 1st genotype, in the raw vcf files, after separated by the delimiter of choice
@@ -467,44 +465,39 @@ if __name__=="__main__":
             raise("Invalid input for threshold sequence parameters")
             logger.error("Invalid input for threshold sequence parameters")
 
-    # file delimiters:
-    GWAS_delim=results.GWAS_delim
-
-    # file names:
-    #home="/Volumes/mavan/Genotyping_161114/MAVAN_imputed_161121/KIDS_info03/"  # define home folder path
-
-    # Name of GWAS file
+    # GWAS file information
     gwasFiles=results.GWAS
     GWAS_has_header=results.GWAS_header
+    GWAS_delim=results.GWAS_delim
 
-    # programme parameter
-    log_or=results.log_or  # specify whether you want to log your odds ratios
-    check_ref=results.check_ref # if you know that there are mismatch between the top strand in the genotypes and that of the GWAS, set True. Not checking the reference allele will improve the speed
-    use_maf=results.use_maf   # whether to use MAF to check reference allele
+    # Programme parameter
+    log_or=results.log_or        # specify whether you want to log your odds ratios
+    check_ref=results.check_ref  # if you know that there are mismatch between the top strand in the genotypes and that of the GWAS, set True. Not checking the reference allele will improve the speed
+    use_maf=results.use_maf      # whether to use MAF to check reference allele
 
-    # sample file path and name
-    sampleFilePath=results.sample_file # include the full/relative path and name of the sample file
+    # Sample file path and name
+    sampleFilePath=results.sample_file    # include the full/relative path and name of the sample file
     sampleFileDelim=results.sample_delim  # sample File Delimiter
     sampleFileID=results.sample_file_ID   # which column in the sample file has the ID
-    sample_skip=results.sample_skip  # how many lines to skip so that the sample names can be matched to the genotypes 1-to-1, taking into account the header of the sample file
-    ##output file information
+    sample_skip=results.sample_skip       # how many lines to skip so that the sample names can be matched to the genotypes 1-to-1, taking into account the header of the sample file
+    
+    # Output file information
+    outputPath=results.OUTPUT
 
-    outputPath=results.Output
-
-    # specify whether to check for duplicate SNPs
+    # Specify whether to check for duplicate SNPs
     checkDup=results.checkdup
 
 
-    # get the name of the genotype files
+    # Get the name of the genotype files
     genoFileNamePattern=results.GENO
     if "file:/" in genoFileNamePattern:
         genoFileNamePattern=re.sub("file://", "", genoFileNamePattern)
 
 
-    # get the whole list of the file names
+    # Get the whole list of the file names
     genoFileNames=glob.glob(genoFileNamePattern)
 
-    # parameter for phenotype regression
+    # Parameter for phenotype regression
     pheno_file=results.pheno_file
     pheno_columns=results.pheno_columns
     pheno_delim=results.pheno_delim
@@ -513,15 +506,15 @@ if __name__=="__main__":
 
 
     ''' ####  start spark   ##### '''
-    ## Start timing:
+    ## Start timing
     totalstart=time.time()
-    ##  start spark context
+    ## Start spark context
     APP_NAME=results.app_name
 
     spark=SparkSession.builder.appName(APP_NAME).getOrCreate()
 
-    # if using spark < 2.0.0, use the pyspark module to make Spark context
-    # conf = pyspark.SparkConf().setAppName(APP_NAME).set()#.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    # If using spark < 2.0.0, use the pyspark module to make Spark context
+    #conf=pyspark.SparkConf().setAppName(APP_NAME).set()#.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
     sc  = spark.sparkContext
 
@@ -540,7 +533,7 @@ if __name__=="__main__":
     logger.info("Total of {} genotype files".format(str(len(genoFileNames))))
     # 1. Load files
 
-    # read the raw data
+    # Read the raw data
     genodata=sc.textFile(genoFileNamePattern)
     #logger.info("Using the GWAS file: {}".format(ntpath.basename(gwasFiles)))
     logger.info("Using the GWAS file: {}".format(gwasFiles))
@@ -559,13 +552,13 @@ if __name__=="__main__":
 
     # 1.1 Filter GWAS and prepare odds ratio
 
-    # filter the genotype to contain only the SNPs less than the maximum p value threshold in the GWAS
+    # Filter the genotype to contain only the SNPs less than the maximum p value threshold in the GWAS
     maxThreshold=max(thresholds)  # maximum p value
     gwasOddsMapMax=filterGWASByP_DF(GWASdf=gwastable, pcolumn=gwas_p, idcolumn=gwas_id, oddscolumn=gwas_or, pHigh=maxThreshold, logOdds=log_or)
     gwasOddsMapMaxCA=sc.broadcast(gwasOddsMapMax).value  # Broadcast the map
 
     # ### 2. Initial processing
-    # at this step, the genotypes are already filtered to keep only the ones in 'gwasOddsMapMax'
+    # At this step, the genotypes are already filtered to keep only the ones in 'gwasOddsMapMax'
     bpMap={"A":"T", "T":"A", "C":"G", "G":"C"}
     tic=time.time()
     if filetype.lower()=="vcf":
@@ -720,14 +713,14 @@ if __name__=="__main__":
 
     prsDict, snpids=calcAll(genotypeMax,gwastable, thresholds, logsnp=snp_log, samplenum=samplesize,calltableRDD=genocalltable)
 
-    # log which SNPs are used in PRS
+    # Log which SNPs are used in PRS
     if snp_log:
         if flagMap:
             logoutput=writeSNPlog(snpids, outputPath, logger, flagMap=flagMap)
         else:
             logoutput=writeSNPlog(snpids, outputPath, logger)
 
-    # generate labels for samples
+    # Generate labels for samples
     #if filetype.lower()=="vcf":
         #subjNames=genodata.filter(lambda line: "#CHROM" in line).map(lambda line: line.split(GENO_delim)[9::]).collect()[0]
         #output=writePRS(prsDict,  outputPath, samplenames=subjNames)
@@ -753,7 +746,7 @@ if __name__=="__main__":
     h, m = divmod(m, 60)
     logger.info("Total calculation time : {:d} hrs {:02d} min {:02d} sec".format(int(h), int(m), int(round(s))))
 
-# remove "spark-warehouse" if it exists and is empty
+# Remove "spark-warehouse" if it exists and is empty
 try:
     os.rmdir(os.path.dirname(os.path.expanduser(outputPath))+"/spark-warehouse")
 except OSError:
