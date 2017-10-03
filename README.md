@@ -7,7 +7,7 @@ PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype da
 
 To clone the repository, use:
 ```
-git clone https://github.com/seriousNel/PRS-on-SPARK.git
+git clone https://github.com/MeaneyLab/PRSoS.git
 ```
 
 ## Software requirements
@@ -25,7 +25,7 @@ The prerequisite to install spark are:
 
 Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type:
 ```
-cd PRS-on-SPARK
+cd PRSoS
 pip install -r requirements.txt
 ```
 
