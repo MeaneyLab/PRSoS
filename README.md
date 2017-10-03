@@ -123,12 +123,12 @@ The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note 
 ### Examples
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 ```
-spark-submit PRS_run.py "VCF_number*.vcf" pgc.mdd.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds 0.2 0.1 0.05
+spark-submit PRS_run.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds 0.2 0.1 0.05
 ```
 To calculate PRS from a series of .gen files, without checking allele alignments, using a GWAS with no header, and not transform the risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "GEN_number*.gen" pgc.mdd.clump.txt output.csv --filetype GEN --sample_file samplefile.csv --sample_file_id 0 --no_check_ref --GWAS_no_header --thresholds 0.2 0.1 0.05
+spark-submit PRS_run.py "GEN_number*.gen" gwas.clump.txt output.csv --filetype GEN --sample_file samplefile.csv --sample_file_id 0 --no_check_ref --GWAS_no_header --thresholds 0.2 0.1 0.05
 ```
 
 ### Full list of parameters when type `python PRS_run.py --help`
@@ -219,7 +219,7 @@ Optional arguments:
                         names that do not match the allele names in the GWAS 
                         description are indicated in the 'discard' column. This 
                         record will be saved to a file with the name specified 
-                        in the Output flag, with .snplog as file extension.
+                        in the OUTPUT flag, with .snplog as file extension.
   --check_dup           Add this flag if you want to check for and discard
                         SNPs that are duplicated, which will take extra time.
                         By default, the script will assume there is no
