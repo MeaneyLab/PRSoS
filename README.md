@@ -1,6 +1,10 @@
 # PRS-on-SPARK
-PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. It can use multiple cores to increase processing efficiency (i.e., reduce processing time).
+PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. 
+It can use multiple cores to increase processing efficiency (i.e., reduce processing time). 
+PRSoS is compatible with Linux, Mac OS, and Windows.
 
+## Contact Information
+Lawrence M. Chen: lawrence.m.chen@mail.mcgill.ca
 
 
 ## Installation
@@ -13,14 +17,12 @@ git clone https://github.com/MeaneyLab/PRSoS.git
 ## Software requirements
 
 The notebooks and scripts require the following to run:
-+ spark-2.0.0 +
++ Spark-2.0.0 + (Apache)
 + Python 2.7 (not Python 3.0)
 
-Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
-
 The prerequisite to install spark are:
-+ java8 (oracle)
-+ scala 
++ Java 8 (Oracle)
++ Scala 
 + sbt
 
 Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type:
@@ -28,6 +30,61 @@ Some extra libraries are required for regression and plotting. To install them, 
 cd PRSoS
 pip install -r requirements.txt
 ```
+
+### Linux
+
+Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
+
+### Mac OS
+
+Requires [Homebrew](https://brew.sh) to perform the required installations.
+
+1. Install code-select by typing the following in Terminal:
+    ```
+    xcode-select --install
+    ```
+
+2. Install Scala:
+    ```
+    brew install scala
+    ```
+
+3. Install Spark:
+    ```
+    brew install apache-spark
+    export SPARK_HOME=/usr/local/Cellar/apache-spark/2.1.1/libexec
+    export PYTHONPATH=/usr/local/Cellar/apache-spark/2.1.1/libexec/python/:$PYTHONP$
+    ```
+
+    (Note: The version of Spark should be changed to be the one you install.)
+
+4. Install Python:
+    ```
+    brew install python
+    pip install psutil
+    ```
+
+### Windows (Win10)
+
+1. Download the installation file for Windows from the following link: https://www.continuum.io/downloads
+
+2. Install Anaconda Python by double clicking the downloaded file and use the default options.
+
+3. Download and install some prerequisite applications:
+    + scala: http://www.scala-lang.org/download/
+    + java7 sdk (if neccessary): http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+4. Download winutils.exe from HortonWorks repo or git repo and store it in a bin directory under a created Hadoop home directory (e.g., C:\Users\hadoop\bin). Afterwards, open cmd and run the following:
+    ```
+    setx SPARK_HOME "C:\Users\spark-2.1.1-bin-hadoop2.7"
+    setx PATH " %SPARK_HOME%\bin;%PATH%"
+    setx HADOOP_HOME "C:\Users\hadoop"
+    ```
+    
+5. To install PySpark, run: 
+    ```
+    conda install -c conda-forge pyspark=2.1.1
+    ```
 
 ## What this pipeline does
 + Match the strand alignment between genotype and GWAS data (by default), and then
