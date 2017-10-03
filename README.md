@@ -1,5 +1,5 @@
 # PRS-on-SPARK
-PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype dosages. It can use multi-core to increase processing efficiency (i.e., reduce processing time).
+PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. It can use multiple cores to increase processing efficiency (i.e., reduce processing time).
 
 
 
@@ -30,8 +30,8 @@ pip install -r requirements.txt
 ```
 
 ## What this pipeline does
-+ Match the strand alignment between genotype and GWAS data, and then
-+ Calculate PRS from the genotype data set (in .gen or .vcf file format), weighted by the associated effect size in the GWAS, using specified or an indicated range of association p-value thresholds
++ Match the strand alignment between genotype and GWAS data (by default), and then
++ Calculate PRS from the genotype data set (in .gen or .vcf file format), weighted by the associated effect size and subsetted by the selected associated p-value thresholds in the GWAS
 
 ## What this pipeline cannot do
 + Perform quality control of genotype data
@@ -50,7 +50,7 @@ By default, the GWAS should have the same format as that of a GWAS file obtained
 
 
 
-You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. Header names can be anything and it is not required. More details below.
+You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. Header names are optional. More details below.
 
 ### .gen file
 A full description can be found on [www.shapeit.fr](http://www.shapeit.fr/pages/m02_formats/gensample.html). A .gen file is a space-delimited file with each line corresponding to a single SNP. The first five columns are:
@@ -65,7 +65,10 @@ First allele [string]
 
 Second allele [string]
 
-Sixth column onwards contain the genotyping data, where every three columns indicates the genotype (or posterior genotype probabilities in the case of using imputed genotype data) of the subject sample. The first of the three columns indicates the likelihood that the sample carries homozygous first allele, the middle column indicates the likelihood that the sample carries heterozygous alleles, and the last column indicates the likelihood that the sample carries homozygous second allele.
+Starting from the sixth column every three columns indicate the genotype (or posterior genotype probabilities in the case of using imputed genotype data) of one subject sample. 
+The first of the three columns indicates the likelihood that the sample carries homozygous first allele, 
+the middle column indicates the likelihood that the sample carries heterozygous alleles, 
+and the last column indicates the likelihood that the sample carries homozygous second allele.
 
 ### .vcf file 
 This is a default format for the genotype data returned from [Sanger Institute](https://imputation.sanger.ac.uk/). 
@@ -84,7 +87,7 @@ python PRS_run.py --help
 ```
 Command-line type flags are used to specify how the scores are calculated. 
 
-To run the script, use ```spark-submit```. You can add other parameters for spark before the script if desired. 
+To run the script, use ```spark-submit```. You can add other parameters for spark before the script name if desired. 
 
 ```
 spark-submit PRS_run.py 
@@ -114,7 +117,8 @@ Alternatively you can specify a sequence of thresholds to use:
 ```
   --threshold_seq 0.1 0.5 0.01
 ```
-After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note the interval is inclusive of the endpoints.
+After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. 
+The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note that the interval is inclusive of the endpoints.
 
 ### Examples
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
@@ -129,7 +133,7 @@ spark-submit PRS_run.py "GEN_number*.gen" pgc.mdd.clump.txt output.csv --filetyp
 
 ### Full list of parameters when type `python PRS_run.py --help`
 ```
-positional arguments:
+Positional arguments:
   GENO                  Name of the genotype files, can be a name or path, or
                         name patterns with wildcard character.
   GWAS                  Name of the GWAS file, can be a name or path.
@@ -138,7 +142,7 @@ positional arguments:
                         (optional), and the regression output. This is similar 
                         to the --out flag in PLINK.
 
-optional arguments:
+Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --version         Show program's version number and exit.
   --gwas_id GWAS_ID     Column number in your GWAS that contains SNP ID, with
@@ -178,9 +182,10 @@ optional arguments:
                         summary-level data. For example, this would be applied
                         to odds ratios to get log odds or the beta values of 
                         logistic regression.
-  --no_check_ref        Adding this option tells the script to not check 
-                        reference allele when determining genotype calls. 
-                        Default is checking.
+  --no_check_ref        Adding this option disables checking reference alleles 
+                        between GENO and GWAS when determining genotype calls. 
+                        When this is used, first allele column in GENO and GWAS 
+                        will be used for scoring.
   --app_name APP_NAME   Give your spark application a name. Default is PRS.
   --sample_file SAMPLE_FILE
                         Path and name of the file that contain the sample
@@ -240,3 +245,8 @@ optional arguments:
                         multiple phenotypes. Default is the first column.
 
 ``` 
+
+## Notes
+
++ Allele names in the allele columns of the GENO and GWAS files should match. If they do not match, they will be discarded (see the SNP log "--snp_log").
++ Allele names should be written using nucleotide initials with capital letters.
