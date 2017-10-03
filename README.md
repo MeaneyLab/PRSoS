@@ -14,7 +14,7 @@ To clone the repository, use:
 git clone https://github.com/MeaneyLab/PRSoS.git
 ```
 
-## Software requirements
+## Software requirements and installation instructions
 
 The notebooks and scripts require the following to run:
 + Spark-2.0.0 + (Apache)
@@ -25,15 +25,15 @@ The prerequisite to install spark are:
 + Scala 
 + sbt
 
+### Linux
+
+Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
+
 Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type:
 ```
 cd PRSoS
 pip install -r requirements.txt
 ```
-
-### Linux
-
-Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
 
 ### Mac OS
 
