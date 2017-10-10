@@ -60,13 +60,13 @@ def makeGenotypeCheckRef(line, checkMap, toDF=False):
     rsid=line[0]
     gen=line[1]
     if rsid in checkMap:
-        if checkMap[rsid]=="keep":    # applies 2 1 0 weights on the genotype triplet codes when the SNP is tagged with "keep" (i.e., A1 in genotype data is same or complementary to A1 in GWAS)
+        if checkMap[rsid]=="A1":    # applies 2 1 0 weights on the genotype triplet codes when the SNP is tagged with "A1" (i.e., A1 in genotype data is same or complementary to A1 in GWAS)
             AA=gen[0::3]
             AB=gen[1::3]
             AA2=[x*2 for x in AA]
             genotype=list(map(add, AA2, AB))
 
-        elif checkMap[rsid]=="flip":    # applies 0 1 2 weights on the genotype triplet codes when the SNP is tagged with "flip" (i.e., A2 in genotype data is same or complementary to A1 in GWAS)
+        elif checkMap[rsid]=="A2":    # applies 0 1 2 weights on the genotype triplet codes when the SNP is tagged with "A2" (i.e., A2 in genotype data is same or complementary to A1 in GWAS)
             AA=gen[2::3]
             AB=gen[1::3]
             AA2=[x*2 for x in AA]
@@ -124,11 +124,13 @@ def checkAlignmentDF(dataframe, bpMap):
         gwasA1F="NO"    # otherwise gwasA1F is indicated as "NO" because it is not provided
 
     if genoA1 in bpMap:
+        # discard if A1 and A2 in GENO or GWAS are the same
         if genoA1==genoA2 or gwasA1==gwasA2:
             flag='discard'
-        elif genoA2==bpMap[genoA1] and (genoA1==bpMap[gwasA1] or genoA1==bpMap[gwasA2]) and (genoA2==bpMap[gwasA2] or genoA2==bpMap[gwasA1]):  # checking ambiguous SNP in the genotype
+        # for ambiguous SNPs
+        elif genoA2==bpMap[genoA1] and (genoA1==bpMap[gwasA1] or genoA1==bpMap[gwasA2]) and (genoA2==bpMap[gwasA2] or genoA2==bpMap[gwasA1]):
             if gwasA1F=="NO":
-                flag="discard"    # if GWAS A1 frequency is not provided, then the SNP will be discarded
+                flag="discard"    # discard ambiguous SNP is A1 frequency is not provided
             else:
                 gwasA1F=float(gwasA1F)
                 genoA1Fdiff=genoA1F*10-5
@@ -138,20 +140,20 @@ def checkAlignmentDF(dataframe, bpMap):
                     flag="discard"
                 else:
                     if genoA1Fdiff * gwasA1Fdiff>0:    # if A1Fdiff's are both positives or both negatives, it implies the genotypes in GWAS and genotype data are aligned on the same strand
-                        flag="keep"
+                        flag="A1"
                     else:
-                        flag="flip"
-        # example if geno has (A,G) and GWAS has (G,T), then need to discard
-        elif (genoA2==gwasA1 and genoA1==gwasA2) or (genoA2==bpMap[gwasA1] and genoA1==bpMap[gwasA2]):    # for non-ambiguous SNPs
-            flag="flip"
+                        flag="A2"
+        # for non-ambiguous SNPs
+        elif (genoA2==gwasA1 and genoA1==gwasA2) or (genoA2==bpMap[gwasA1] and genoA1==bpMap[gwasA2]):
+            flag="A2"
 
-        elif (genoA1==gwasA1 and genoA2==gwasA2) or (genoA1==bpMap[gwasA1] and genoA2==bpMap[gwasA2]):    # for non-ambiguous SNPs
-            flag="keep"
+        elif (genoA1==gwasA1 and genoA2==gwasA2) or (genoA1==bpMap[gwasA1] and genoA2==bpMap[gwasA2]):
+            flag="A1"
 
         else:
-            flag="discard"
+            flag="discard"    # discard if one allele name does not match (for example, if geno has (A,G) and GWAS has (G,T))
     else :
-        flag="discard"
+        flag="discard"    # discard everything else
         #logger.warn("Invalid Genotypes for SNP {}; genotype Alleles:{},{}; GWAS alleles: {},{}".format(snpid, genoA1, genoA2, gwasA1, gwasA2))
 
     return (snpid,flag)
@@ -168,9 +170,9 @@ def checkAlignmentDFnoMAF(dataframe, bpMap):
         if genoA2==bpMap[genoA1] or genoA1==genoA2:  # discard ambiguous case and the case where A1 = A2 in the genotype data
             flag="discard"
         elif (genoA2==gwasA1 and genoA1==gwasA2) or (genoA2==bpMap[gwasA1] and genoA1==bpMap[gwasA2]):    # for non-ambiguous SNPs
-            flag="flip"
+            flag="A2"
         elif (genoA1==gwasA1 and genoA2==gwasA2) or (genoA1==bpMap[gwasA1] and genoA2==bpMap[gwasA2]):    # for non-ambiguous SNPs
-            flag="keep"
+            flag="A1"
         else:
             flag='discard'
 
@@ -333,7 +335,7 @@ def regression(scoreMap,phenoFile, phenoDelim, phenoColumns, phenoNoHeader, cova
         pAll.append(plist)
         r2All.append(r2list)
 
-    logger.info("All regression finished")
+    logger.info("All regression(s) finished")
     return phenotypes, thresholds, r2All, pAll
 
 
@@ -385,7 +387,7 @@ if __name__=="__main__":
 
     parser.add_argument("--no_maf", action="store_false", default=True, dest="use_maf", help="The pipeline calculates the allele frequencies in the genotype population by default, which is used to help retain as many ambiguous SNPs as possible by comparing the allele frequencies in the GWAS to make the best estimate of the strand alignment. Use this flag to disable this feature and all ambiguous SNPs that would have been used for PRS caculation will be discarded.")
 
-    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect, indicated as 'keep' or 'flip'. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
+    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
 
     parser.add_argument("--check_dup", action="store_true", default=False, dest="checkdup", help="Add this flag to discard SNPs that are duplicated, which will take extra time. By default, the script will assume there are no duplicated SNPs.")
 
