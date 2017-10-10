@@ -29,7 +29,7 @@ The prerequisite to install spark are:
 
 Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
 
-Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then type:
+Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then run:
 ```
 cd PRSoS
 pip install -r requirements.txt
@@ -95,9 +95,21 @@ Requires [Homebrew](https://brew.sh) to perform the required installations.
 
 ## Default format
 ### GWAS
-By default, the GWAS should have the same format as that of a GWAS file obtained from Psychiatric Genomics Consortium (PGC). 
 
-|     snpid|   pval|    or| a1| a2|    CEUaf|
+The GWAS data input requires the following columns:
+
+snpid = rs ID of the SNP
+
+pval = p-value of the association in the GWAS data
+
+or = odds ratio in the GWAS data, or it can be log odds ratio or beta (if it is the odds ratio, add `--log_or` flag to use log odds ratio)
+
+a1 = reference allele for the odds ratio
+
+a2 = alternative allele
+
+
+|     snpid|   pval|    or| a1| a2|   a1freq|
 |----------|-------|------|---|---|---------|
 | rs3131972| 0.2032| 1.047|  A|  G|  0.16055|
 | rs3131969|0.08597| 1.067|  A|  G| 0.133028|
@@ -105,7 +117,7 @@ By default, the GWAS should have the same format as that of a GWAS file obtained
 | rs1048488| 0.2808|0.9617|  T|  C| 0.836449|
 |rs12562034| 0.8489|0.9931|  A|  G|0.0925926|
 
-
+Allele frequency of a1 (a1freq) is optional (if provided in the GWAS data), but it is necessary if you would like to include strand-ambiguous SNPs using the allele frequency information to inform strand alignment.
 
 You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. Header names are optional. More details below.
 
@@ -271,12 +283,12 @@ Optional arguments:
   --snp_log             Add this flag to record the SNPs that are used at each 
                         threshold. It will also report whether the A1 or A2 
                         allele in the genotype data was used as reference for 
-                        the risk effect, indicated as 'keep' or 'flip'. Any SNPs
-                        that meet the p-value threshold criteria but has allele 
-                        names that do not match the allele names in the GWAS 
-                        description are indicated in the 'discard' column. This 
-                        record will be saved to a file with the name specified 
-                        in the OUTPUT flag, with .snplog as file extension.
+                        the risk effect. Any SNPs that meet the p-value 
+                        threshold criteria but has allele names that do not 
+                        match the allele names in the GWAS description are 
+                        indicated in the 'discard' column. This record will be 
+                        saved to a file with the name specified in the OUTPUT 
+                        flag, with .snplog as file extension.
   --check_dup           Add this flag if you want to check for and discard
                         SNPs that are duplicated, which will take extra time.
                         By default, the script will assume there is no
