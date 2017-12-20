@@ -20,16 +20,22 @@ The notebooks and scripts require the following to run:
 + Spark-2.0.0 + (Apache)
 + Python 2.7 (not Python 3.0)
 
-The prerequisite to install spark are:
+The prerequisite to install Spark are:
 + Java 8 (Oracle)
 + Scala 
 + sbt
+
+The required Python modules are:
++ matplotlib
++ pandas
++ numpy
++ statsmodels
 
 ### Linux
 
 Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
 
-Some extra libraries are required for regression and plotting. To install them, first make sure pip is installed on your computer, then run:
+The Python modules can be installed independently. To install them all at once, first make sure pip is installed on your computer, then run:
 ```
 cd PRSoS
 pip install -r requirements.txt
@@ -53,7 +59,7 @@ Requires [Homebrew](https://brew.sh) to perform the required installations.
     ```
     brew install apache-spark
     export SPARK_HOME=/usr/local/Cellar/apache-spark/2.1.1/libexec
-    export PYTHONPATH=/usr/local/Cellar/apache-spark/2.1.1/libexec/python/:$PYTHONP$
+    export PYTHONPATH=/usr/local/Cellar/apache-spark/2.1.1/libexec/python/:$PYTHONPATH
     ```
 
     (Note: The version of Spark should be changed to be the one you install.)
@@ -85,6 +91,10 @@ Requires [Homebrew](https://brew.sh) to perform the required installations.
     ```
     conda install -c conda-forge pyspark=2.1.1
     ```
+    
+6. To install the Python modules, you can use conda or pip.
+
+Alternative instructions for installing Spark can be found [here](http://www.informit.com/articles/article.aspx?p=2755929&seqNum=3).
 
 ## What this pipeline does
 + Match the strand alignment between genotype and GWAS data (by default), and then
