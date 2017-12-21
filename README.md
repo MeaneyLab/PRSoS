@@ -80,7 +80,7 @@ Requires [Homebrew](https://brew.sh) to perform the required installations.
     + scala: http://www.scala-lang.org/download/
     + java7 sdk (if neccessary): http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
-4. Download winutils.exe from HortonWorks repo or git repo (?LINK?) or from Steve Loughran's GitHub (https://github.com/steveloughran/winutils) and store it in a bin directory under a created Hadoop home directory (e.g., C:\Users\hadoop\bin).
+4. Download winutils.exe from HortonWorks repo or Steve Loughran's GitHub (https://github.com/steveloughran/winutils) and store it in a bin directory under a created Hadoop home directory (e.g., C:\Users\hadoop\bin).
 
 5. Afterwards, open cmd and run the following:
     ```
