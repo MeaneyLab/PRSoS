@@ -196,14 +196,23 @@ Alternatively you can specify a sequence of thresholds to use:
 ```
   --threshold_seq 0.1 0.5 0.01
 ```
+
 After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. 
 The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note that the interval is inclusive of the endpoints.
 
 ### Examples
+To calculate PRS using the provided test sample files and generate the SNP log output:
+
+```
+spark-submit PRS_run.py test_sample.gen gwas.clump.txt test_output --sample_file test_sample.sample --filetype GEN --snp_log
+```
+
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
+
 ```
 spark-submit PRS_run.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds 0.2 0.1 0.05
 ```
+
 To calculate PRS from a series of .gen files, without checking allele alignments, using a GWAS with no header, and not transform the risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
