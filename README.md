@@ -1,7 +1,7 @@
 # PRS-on-SPARK
 PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. 
 It can use multiple cores to increase processing efficiency (i.e., reduce processing time). 
-PRSoS is compatible with Linux, Mac OS, and Windows.
+PRSoS is compatible with Linux, Mac OS, and Windows. It runs using [Apache Spark](https://spark.apache.org) and [Python](https://www.python.org/download/releases/2.7.2/).
 
 ## Contact Information
 Lawrence M. Chen: lawrence.m.chen@mail.mcgill.ca
@@ -33,7 +33,7 @@ The required Python modules are:
 
 ### Linux
 
-Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/)
+Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/).
 
 The Python modules can be installed independently. To install them all at once, first make sure pip is installed on your computer, then run:
 ```
@@ -102,10 +102,11 @@ Alternative instructions for installing Spark can be found [here](http://www.inf
 
 ## What this pipeline does
 + Match the strand alignment between genotype and GWAS data (by default), and then
-+ Calculate PRS from the genotype data set (in .gen or .vcf file format), weighted by the associated effect size and subsetted by the selected associated p-value thresholds in the GWAS
++ Calculate PRS from the genotype data set (in .gen or .vcf file format), weighted by the associated effect size (e.g., log odds ratio), and subsetted by the selected associated p-value thresholds in the GWAS
 
 ## What this pipeline cannot do
-+ Perform quality control of genotype data
++ Perform quality control of genotype data (depending on the file format, quality control can be performed using [QCTOOL](http://www.well.ox.ac.uk/~gav/qctool_v2/), [PLINK](https://www.cog-genomics.org/plink/1.9/), [VCFtools](http://vcftools.sourceforge.net), etc.)
++ Perform linkage disequilibrium clumping or pruning (linkage disequilibrium clumping or pruning can can be performed using [PLINK](https://www.cog-genomics.org/plink/1.9/). However, note that dosage data (e.g., posterior probabilities) are not compatible with PLINK file formats)
 
 ## Default format
 ### GWAS
@@ -135,7 +136,10 @@ Allele frequency of a1 (a1freq) is optional (if provided in the GWAS data), but 
 
 You can change your GWAS to the same format, or use optional parameter flags to let the script know about the format you are using. Header names are optional. More details below.
 
-### .gen file
+### Genotype 
+.gen or .vcf file formats can be used for the genotype data input.
+
+#### .gen file
 A full description can be found on [www.shapeit.fr](http://www.shapeit.fr/pages/m02_formats/gensample.html). A .gen file is a space-delimited file with each line corresponding to a single SNP. The first five columns are:
 
 Chromosome number [integer]
@@ -153,7 +157,7 @@ The first of the three columns indicates the likelihood that the sample carries 
 the middle column indicates the likelihood that the sample carries heterozygous alleles, 
 and the last column indicates the likelihood that the sample carries homozygous second allele.
 
-### .vcf file 
+#### .vcf file 
 This is a default format for the genotype data returned from [Sanger Institute](https://imputation.sanger.ac.uk/). 
 Details about the format can be found [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). 
 PRSoS uses posterior genotype probabilities (see FORMAT = GP) as genotype input.
@@ -161,38 +165,46 @@ PRSoS uses posterior genotype probabilities (see FORMAT = GP) as genotype input.
 ### Output file
 The output format of PRS results and SNP logs is comma-delimited. 
 
+#### .score
+
+A .score file contains the sample ID, the PRS and the SNP count for each p-value threshold applied.
+
+#### .snplog
+
+A .snplog file contains the SNP list and their effect allele for each PRS p-value threshold applied. It also contains the list of shared SNPs between the GWAS and genotype data that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication.
+
+
 ## Running command-line script PRS_run.py
-### Parameters
+### Spark-submit command
 
-A description of the parameters for the script can be obtained by typing: 
-```
-python PRS_run.py --help
-```
-Command-line type flags are used to specify how the scores are calculated. 
-
-To run the script, use ```spark-submit```. You can add other parameters for spark before the script name if desired. 
+Use ```spark-submit``` to run the PRS calculations script. You can add other Spark parameters before the script name to control how Spark operates (e.g., --master local[K] to use K number of local worker threads). More Spark-submit options are found [here](http://spark.apache.org/docs/latest/submitting-applications.html).
 
 ```
-spark-submit PRS_run.py 
+spark-submit PRS_run.py
 ```
+
 Followed by three positional parameters (mandatory):
+
 ```
-  GENO                  Name of the Genotype files, can be a name or path, or name patterns with '*'
+  GENO                  Name of the genotype files, can be a name or path, or name patterns with '*'
   GWAS                  Name of the GWAS file, can be a name or path.
   OUTPUT                The path and name for the output file.
 ```
-Followed by some optional parameters. By default, the pipeline assumes the following: 
+
+Followed by some optional parameters (full list further below). By default, the pipeline assumes the following: 
 
 * To specify the format of genotype file:
 ```
   --filetype VCF  
 ```
+
 The type of genotype file used as input, choose between VCF and GEN. Default is VCF.
 
 * To specify the p-value thresholds of the score:
 ```
   --thresholds 0.5 0.2 0.1 0.05 0.01 0.001 0.0001
 ```
+
 Enter one or more float numbers separated by space. Default is 0.5 0.2 0.1 0.05 0.01 0.001 0.0001.
 
 Alternatively you can specify a sequence of thresholds to use:
@@ -204,26 +216,34 @@ Alternatively you can specify a sequence of thresholds to use:
 After the flag, the first number is the starting point of the sequence, the second is the end point of the sequence, the third number denotes the step size. 
 The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note that the interval is inclusive of the endpoints.
 
-### Examples
+#### Examples
 To calculate PRS using the provided test sample files and generate the SNP log output:
 
 ```
-spark-submit PRS_run.py test_sample.gen gwas.clump.txt test_output --sample_file test_sample.sample --filetype GEN --snp_log
+spark-submit PRS_run.py test_sample.gen gwas.clump.txt test_output --sample test_sample.sample --filetype GEN --snp_log
 ```
 
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample_file samplefile.csv --sample_file_id 0 --log_or --thresholds 0.2 0.1 0.05
+spark-submit PRS_run.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample samplefile.csv --sample_id 0 --log_or --thresholds 0.2 0.1 0.05
 ```
 
 To calculate PRS from a series of .gen files, without checking allele alignments, using a GWAS with no header, and not transform the risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "GEN_number*.gen" gwas.clump.txt output.csv --filetype GEN --sample_file samplefile.csv --sample_file_id 0 --no_check_ref --GWAS_no_header --thresholds 0.2 0.1 0.05
+spark-submit PRS_run.py "GEN_number*.gen" gwas.clump.txt output.csv --filetype GEN --sample samplefile.csv --sample_id 0 --no_check_ref --gwas_no_header --thresholds 0.2 0.1 0.05
 ```
 
-### Full list of parameters when type `python PRS_run.py --help`
+### Parameters
+
+A description of the parameters for the script can be obtained by typing: 
+```
+python PRS_run.py --help
+```
+Command-line type flags are used to specify how the scores are calculated. 
+
+#### Full list of parameters when type `python PRS_run.py --help`
 ```
 Positional arguments:
   GENO                  Name of the genotype files, can be a name or path, or
@@ -237,6 +257,9 @@ Positional arguments:
 Optional arguments:
   -h, --help            Show this help message and exit.
   -v, --version         Show program's version number and exit.
+  --app_name APP_NAME   Give your spark application a name. Default is PRS.
+  --filetype {GEN,VCF}  The type of genotype file used as input, choose
+                        between VCF and GEN. Default is VCF.
   --gwas_id GWAS_ID     Column number in your GWAS that contains SNP ID, with
                         first column being 0. Default is 0.
   --gwas_p GWAS_P       Column number in your GWAS that contains p-value, with
@@ -249,13 +272,54 @@ Optional arguments:
                         with first column being 0. Default is 4.
   --gwas_a1f GWAS_A1F   Column number in your GWAS that contains frequency of
                         A1, with first column being 0. Default is 5.
-  --filetype {GEN,VCF}  The type of genotype file used as input, choose
-                        between VCF and GEN. Default is VCF.
+  --gwas_delim "GWAS_DELIM"
+                        Delimiter of the GWAS file. Default is tab-delimited. 
+                        Set quotation marks around the delimiter when applied.
+  --gwas_no_header      Adding this parameter signals that there is no header 
+                        in the GWAS data input. The default is to assume that 
+                        GWAS has column names.
+  --sample SAMPLE_FILE
+                        Path and name of the file that contain the sample
+                        labels. It is assumed that the sample labels are
+                        already in the same order as in the genotype file.
+  --sample_delim "SAMPLE_DELIM"
+                        Delimiter of the sample file. Default is comma. Set 
+                        quotation marks around the delimiter when applied.
+  --sample_id ID_COLUMN1 ID_COLUMN2 ID_COLUMN3 ...
+                        Specify which columns in the sample file are used as
+                        labels. Can use one integer to specify one column, or
+                        multiple integers to specify multiple columns, with 
+                        first column being 0. Default is 0.
+  --sample_skip_header SAMPLE_HEADER_LINES
+                        Specify how many header lines to ignore in the sample 
+                        file. Default is 2, which assumes that the sample labels
+                        start on the third line.
+  --pheno PHENO_FILE
+                        Specify the path to the data file for the phenotype.
+                        It is assumed that the phenotype data is organized in
+                        the same order as the samples in the genotype file.
+  --pheno_delim "PHENO_DELIM"
+                        Specify the delimiter for the phenotype data file.
+                        Default is comma. Set quotation marks around the 
+                        delimiter when applied.
+  --pheno_no_header     Specify whether the phenotype has a header row.
+  --pheno_columns PHENO_COLUMN1 PHENO_COLUMN2 PHENO_COLUMN3 ...
+                        Column number(s) in the phenotype file that contain the 
+                        phenotype data. Multiple column numbers can be specified
+                        to conduct regression with multiple phenotypes, with 
+                        first column being 0. Default is 0.
+  --covar_columns COVAR_COLUMN1 COVAR_COLUMN2 COVAR_COLUMN3 ...
+                        Column number(s) in the phenotype file that contain the 
+                        covariate data. Multiple column numbers can be specified
+                        to conduct regression with multiple covariates, with 
+                        first column being 0. No column number is set as 
+                        default.
   --thresholds THRESHOLD1 THRESHOLD2 THRESHOLD3 ...
                         The p-value thresholds that filters which SNPs are
                         used from the GWAS. Specifying the p-values simply by
                         input one after another. Default is 0.5, 0.2, 0.1,
-                        0.05, 0.01, 0.001, 0.0001.
+                        0.05, 0.01, 0.001, 0.0001. Note that the interval is 
+                        inclusive of the endpoints.
   --threshold_seq LOWERBOUND UPPERBOUND STEPSIZE
                         Defines a sequence that contains all the p-value
                         thresholds that filters which SNPs are used from the
@@ -263,46 +327,26 @@ Optional arguments:
                         bound, upper bound, step size. Default is None (i.e., 
                         not used). Defining a sequence automatically overwrites 
                         the threshold list defined under --thresholds.
-  --GWAS_delim "GWAS_DELIM"
-                        Delimiter of the GWAS file. Default is tab-delimited. 
-                        Set quotation marks around the delimiter when applied.
-  --GWAS_no_header      Adding this parameter signals that there is no header 
-                        in the GWAS data input. The default is to assume that 
-                        GWAS has column names.
   --log_or              Adding this parameter tells the script to log (natural 
                         base) the effect sizes provided in the GWAS 
                         summary-level data. For example, this would be applied
                         to odds ratios to get log odds or the beta values of 
                         logistic regression.
-  --no_check_ref        Adding this option disables checking reference alleles 
-                        between GENO and GWAS when determining genotype calls. 
-                        When this is used, first allele column in GENO and GWAS 
-                        will be used for scoring.
-  --app_name APP_NAME   Give your spark application a name. Default is PRS.
-  --sample_file SAMPLE_FILE
-                        Path and name of the file that contain the sample
-                        labels. It is assumed that the sample labels are
-                        already in the same order as in the genotype file.
-  --sample_file_delim "SAMPLE_DELIM"
-                        Delimiter of the sample file. Default is comma. Set 
-                        quotation marks around the delimiter when applied.
-  --sample_file_ID ID_COLUMN1 ID_COLUMN2 ID_COLUMN3 ...
-                        Specify which columns in the sample file are used as
-                        labels. Can use one integer to specify one column, or
-                        multiple integers to specify multiple columns, with 
-                        first column being 0. Default is 0.
-  --sample_file_skip SAMPLE_SKIP
-                        Specify how many header lines to ignore in the sample 
-                        file. Default is 1, which assumes that the sample files 
-                        has column names and the labels start on the second 
-                        line.
-  --no_maf              The pipeline calculates the allele frequencies in the 
+  --no_a1f              The pipeline calculates the allele frequencies in the 
                         genotype population by default, which is used to help 
                         retain as many ambiguous SNPs as possible by comparing 
                         the allele frequencies in the GWAS to make the best 
                         estimate of the strand alignment. Use this flag to 
                         disable this feature and all ambiguous SNPs that would 
                         have been used for PRS caculation will be discarded.
+  --no_check_ref        Adding this option disables checking reference alleles 
+                        between GENO and GWAS when determining genotype calls. 
+                        When this is used, first allele column in GENO and GWAS 
+                        will be used for scoring.
+  --check_dup           Add this flag if you want to check for and discard
+                        SNPs that are duplicated, which will take extra time.
+                        By default, the script will assume there is no
+                        duplicate SNPs.
   --snp_log             Add this flag to record the SNPs that are used at each 
                         threshold. It will also report whether the A1 or A2 
                         allele in the genotype data was used as reference for 
@@ -312,29 +356,6 @@ Optional arguments:
                         indicated in the 'discard' column. This record will be 
                         saved to a file with the name specified in the OUTPUT 
                         flag, with .snplog as file extension.
-  --check_dup           Add this flag if you want to check for and discard
-                        SNPs that are duplicated, which will take extra time.
-                        By default, the script will assume there is no
-                        duplicate SNPs.
-  --pheno_file PHENO_FILE
-                        Specify the path to the data file for the phenotype.
-                        It is assumed that the phenotype data is organized in
-                        the same order as the samples in the genotype file.
-  --pheno_columns PHENO_COLUMN1 PHENO_COLUMN2 PHENO_COLUMN3 ...
-                        Specify which columns that the phenotype data is in
-                        the provided phenotype data file. Multiple column
-                        numbers can be specified to conduct regression with
-                        multiple phenotypes. Default is the first column.
-  --pheno_delim "PHENO_DELIM"
-                        Specify the delimiter for the phenotype data file.
-                        Default is comma. Set quotation marks around the 
-                        delimiter when applied.
-  --pheno_no_header     Specify whether the phenotype has a header row
-  --covar_columns COVAR_COLUMN1 COVAR_COLUMN2 COVAR_COLUMN3 ...
-                        Specify which columns that the phenotype data is in
-                        the provided phenotype data file. Multiple column
-                        numbers can be specified to conduct regression with
-                        multiple phenotypes. Default is the first column.
 
 ``` 
 
