@@ -50,7 +50,7 @@ def getCall(line):
 # Takes an array of triplets and convert to number of A1 alleles
 def makeGenotype(line):
     AA=line[0::3]
-    AB= line[1::3]
+    AB=line[1::3]
     AA2=[x*2 for x in AA]
     genotype=[AA2[i]+AB[i] for i in range(len(AA2))]
     return  genotype
@@ -159,7 +159,7 @@ def checkAlignmentDF(dataframe, bpMap):
     return (snpid,flag)
 
 # Check reference allele alignment without using A1F in the GWAS. Ambiguous SNPS are automatically discarded
-def checkAlignmentDFnoMAF(dataframe, bpMap):
+def checkAlignmentDFnoA1F(dataframe, bpMap):
     snpid=dataframe[0]
     genoA1=dataframe[1].strip()
     genoA2=dataframe[2].strip()
@@ -348,59 +348,48 @@ if __name__=="__main__":
     from pyspark import SparkConf, SparkContext
     # ATTN: python index starts at 0, so if you want to specify the second column, use 1
     # Define column number for contents in GWAS
-    parser = argparse.ArgumentParser(description='PARAMETERS', version='1.7')
+    parser = argparse.ArgumentParser(description='PARAMETERS', version='1.8')
     # Mandatory positional arguments
     parser.add_argument("GENO", action="store", help="Name of the genotype files, can be a name or path, or name patterns with wildcard character.")
     parser.add_argument("GWAS", action="store", help="Name of the GWAS file, can be a name or path.")
     parser.add_argument("OUTPUT", action="store", help="The path and name stem for the output files. One name will be used for the score output, the snp log (optional), and the regression output. This is similar to the --out flag in PLINK.")
 
     # Optional arguments
+    parser.add_argument("--app_name", action="store", default="PRS", dest="app_name", help="Give your spark application a name. Default is PRS.")
+    parser.add_argument("--filetype", action="store",default="VCF", dest="filetype", help="The type of genotype file used as input, choose between VCF and GEN. Default is VCF.", choices=set(["VCF", "GEN"]))
+
     parser.add_argument("--gwas_id", action="store", default=0, dest="gwas_id",type=int, help="Column number in your GWAS that contains SNP ID, with first column being 0. Default is 0.")
     parser.add_argument("--gwas_p", action="store", default=1, dest="gwas_p", type=int, help="Column number in your GWAS that contains p-value, with first column being 0. Default is 1.")
     parser.add_argument("--gwas_or", action="store", default=2, dest="gwas_or", type=int, help="Column number in your GWAS that contains odds-ratio/beta, with first column being 0. Default is 2.")
     parser.add_argument("--gwas_a1", action="store", default=3, dest="gwas_a1", type=int, help="Column number in your GWAS that contains allele A1, with first column being 0. Default is 3.")
     parser.add_argument("--gwas_a2", action="store", default=4, dest="gwas_a2", type=int, help="Column number in your GWAS that contains allele A2, with first column being 0. Default is 4.")
     parser.add_argument("--gwas_a1f", action="store", default=5, dest="gwas_a1f", type=int, help="Column number in your GWAS that contains frequency of A1, with first column being 0. Default is 5.")
-    parser.add_argument("--filetype", action="store",default="VCF", dest="filetype", help="The type of genotype file used as input, choose between VCF and GEN. Default is VCF.", choices=set(["VCF", "GEN"]))
+    parser.add_argument("--gwas_delim", action="store", default="\t", dest="gwas_delim", help="Delimiter of the GWAS file. Default delimiter is tab. Set quotation marks around the delimiter when applied.")
+    parser.add_argument("--gwas_no_header", action="store_false", default=True, dest="gwas_header", help="Add this flag to signal no header in the GWAS data input. The default is to assume that GWAS has column names.")
+
+    parser.add_argument("--sample", action="store", dest="sample_file", default="NOSAMPLE",help="Path and name of the file that contain the sample labels. It is assumed that the sample labels are already in the same order as in the genotype file.")
+    parser.add_argument("--sample_delim", action="store", default=" ", dest="sample_delim", help="Delimiter of the sample file. Default delimiter is space. Set quotation marks around the delimiter when applied.")
+    parser.add_argument("--sample_id", action="store", default=[0], type=int, nargs="+", dest="sample_ID", help="Specify which columns in the sample file are used as labels. Can use one integer to specify one column or multiple integers to specify multiple columns, with first column being 0. Default is 0.")
+    parser.add_argument("--sample_skip_header", action="store", default=2, type=int, dest="sample_skip", help="Specify how many header lines to ignore in the sample file. Default is 2, which assumes that the sample labels start on the third line.")
+
+    parser.add_argument("--pheno", action="store", default=None, dest="pheno_file", help="Specify the path to the data file for the phenotype. It is assumed that the phenotype data is organized in the same order as the samples in the genotype file.")
+    parser.add_argument("--pheno_delim", action="store", default=",", dest="pheno_delim", help="Specify the delimiter for the phenotype data file. Default delimiter is comma. Set quotation marks around the delimiter when applied.")
+    parser.add_argument("--pheno_no_header", action="store_true", default=False, dest="pheno_no_header", help="Specify whether the phenotype has a header row.")
+    parser.add_argument("--pheno_columns", action="store", default=[0], type=int, nargs="+", dest="pheno_columns", help="Column number(s) in the phenotype file that contain the phenotype data. Multiple column numbers can be specified to conduct regression with multiple phenotypes, with first column being 0. Default is 0.")
+    parser.add_argument("--covar_columns", action="store", default=[], type=int, nargs="+", dest="covar_columns", help="Column number(s) in the phenotype file that contain the covariate data. Multiple column numbers can be specified to conduct regression with multiple covariates, with first column being 0. No column number is set as default.")
 
     parser.add_argument("--thresholds", action="store", default=[0.5, 0.2, 0.1, 0.05, 0.01, 0.001, 0.0001], dest="thresholds", help="The p-value thresholds that controls which SNPs are used from the GWAS. Specifying the p-values simply by input one after another. Default is 0.5, 0.2, 0.1, 0.05, 0.01, 0.001, 0.0001.", nargs="+", type=float)
-
     parser.add_argument("--threshold_seq", action="store", default=None, dest="threshold_seq", help="As an alternative to --thresholds, use this flag to define a sequence that contains all the p-value thresholds that filters which SNPs are used from the GWAS. Input is three numbers separated by space: lower bound, upper bound, step size. Default is None (i.e., not used). This flag automatically overwrites the threshold list defined under --thresholds.", nargs="+", type=float)
-
-    parser.add_argument("--GWAS_delim", action="store", default="\t", dest="GWAS_delim", help="Delimiter of the GWAS file. Default delimiter is tab. Set quotation marks around the delimiter when applied.")
-
-    parser.add_argument("--GWAS_no_header", action="store_false", default=True, dest="GWAS_header", help="Add this flag to signal no header in the GWAS data input. The default is to assume that GWAS has column names.")
 
     parser.add_argument("--log_or", action="store_true", default=False, dest="log_or", help="Add this flag to log (natural base) the effect sizes provided in the GWAS summary-level data. For example, this would be applied to odds ratios to get log odds or the beta values of logistic regression.")
 
+    parser.add_argument("--no_a1f", action="store_false", default=True, dest="use_a1f", help="The pipeline calculates the allele frequencies in the genotype population by default, which is used to help retain as many ambiguous SNPs as possible by comparing the allele frequencies in the GWAS to make the best estimate of the strand alignment. Use this flag to disable this feature and all ambiguous SNPs that would have been used for PRS caculation will be discarded.")
+
     parser.add_argument("--no_check_ref", action="store_false", default=True, dest="check_ref", help="Adding this option disables checking reference alleles between GENO and GWAS when determining genotype calls. When this is used, first allele column in GENO and GWAS will be used for scoring.")
-
-    parser.add_argument("--app_name", action="store", default="PRS", dest="app_name", help="Give your spark application a name. Default is PRS.")
-
-    parser.add_argument("--sample_file", action="store", dest="sample_file", default="NOSAMPLE",help="Path and name of the file that contain the sample labels. It is assumed that the sample labels are already in the same order as in the genotype file.")
-
-    parser.add_argument("--sample_file_delim", action="store", default=" ", dest="sample_delim", help="Delimiter of the sample file. Default delimiter is space. Set quotation marks around the delimiter when applied.")
-
-    parser.add_argument("--sample_file_ID", action="store", default=[0], type=int, nargs="+", dest="sample_file_ID", help="Specify which columns in the sample file are used as labels. Can use one integer to specify one column or multiple integers to specify multiple columns, with first column being 0. Default is 0.")
-
-    parser.add_argument("--sample_file_skip", action="store", default=2, type=int, dest="sample_skip", help="Specify how many lines to skip in the sample file, i.e., which row do the labels start. Default is 2, which assumes that the labels start on the third line")
-
-    parser.add_argument("--no_maf", action="store_false", default=True, dest="use_maf", help="The pipeline calculates the allele frequencies in the genotype population by default, which is used to help retain as many ambiguous SNPs as possible by comparing the allele frequencies in the GWAS to make the best estimate of the strand alignment. Use this flag to disable this feature and all ambiguous SNPs that would have been used for PRS caculation will be discarded.")
-
-    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
 
     parser.add_argument("--check_dup", action="store_true", default=False, dest="checkdup", help="Add this flag to discard SNPs that are duplicated, which will take extra time. By default, the script will assume there are no duplicated SNPs.")
 
-
-    parser.add_argument("--pheno_file", action="store", default=None, dest="pheno_file", help="Specify the path to the data file for the phenotype. It is assumed that the phenotype data is organized in the same order as the samples in the genotype file.")
-
-    parser.add_argument("--pheno_columns", action="store", default=[0], type=int, nargs="+", dest="pheno_columns", help="Specify which columns that the phenotype data is in the provided phenotype data file. Multiple column numbers can be specified to conduct regression with multiple phenotypes. Default is the first column.")
-
-    parser.add_argument("--pheno_delim", action="store", default=",", dest="pheno_delim", help="Specify the delimiter for the phenotype data file. Default delimiter is comma. Set quotation marks around the delimiter when applied.")
-
-    parser.add_argument("--pheno_no_header", action="store_true", default=False, dest="pheno_no_header", help="Specify whether the phenotype has a header row.")
-
-    parser.add_argument("--covar_columns", action="store", default=[], type=int, nargs="+", dest="covar_columns", help="Specify which columns that the phenotype data is in the provided phenotype data file. Multiple column numbers can be specified to conduct regression with multiple phenotypes. Default is the first column.")
+    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
 
 
     results=parser.parse_args()
@@ -443,15 +432,15 @@ if __name__=="__main__":
 
     # Define column number for contents in genfile
     if filetype.lower()=="vcf":
-        geno_id= 2 # column number with rsID
+        geno_id=2 # column number with rsID
         geno_start=9 # column number of the 1st genotype, in the raw vcf files, after separated by the delimiter of choice
-        geno_a1 = 3 # column number that contains the reference allele
-        GENO_delim= "\t"
+        geno_a1=3 # column number that contains the reference allele
+        geno_delim="\t"
     elif filetype.lower()=="gen":
-        geno_id = 1
+        geno_id=1
         geno_start=5
         geno_a1=3
-        GENO_delim= " "
+        geno_delim=" "
 
     step=0.01
     # List of thresholds:
@@ -464,23 +453,23 @@ if __name__=="__main__":
             step=threshold_seq[2]
             thresholds=np.arange(lower, upper+step, step).tolist()
         else:
-            raise("Invalid input for threshold sequence parameters")
-            logger.error("Invalid input for threshold sequence parameters")
+            logger.error("COMMAND ERROR: Invalid input for threshold sequence parameters. Check the --threshold_seq parameters. You need lower bound, upper bound, and step size.")
+            raise("COMMAND ERROR: Invalid input for threshold sequence parameters. Check the --threshold_seq parameters. You need lower bound, upper bound, and step size.")
 
     # GWAS file information
     gwasFiles=results.GWAS
-    GWAS_has_header=results.GWAS_header
-    GWAS_delim=results.GWAS_delim
+    GWAS_has_header=results.gwas_header
+    gwas_delim=results.gwas_delim
 
     # Programme parameter
     log_or=results.log_or        # specify whether you want to log your odds ratios
     check_ref=results.check_ref  # if you know that there are mismatch between the top strand in the genotypes and that of the GWAS, set True. Not checking the reference allele will improve the speed
-    use_maf=results.use_maf      # whether to use MAF to check reference allele
+    use_a1f=results.use_a1f      # whether to use A1 frequency to check reference allele
 
     # Sample file path and name
     sampleFilePath=results.sample_file    # include the full/relative path and name of the sample file
     sampleFileDelim=results.sample_delim  # sample File Delimiter
-    sampleFileID=results.sample_file_ID   # which column in the sample file has the ID
+    sampleFileID=results.sample_ID   # which column in the sample file has the ID
     sample_skip=results.sample_skip       # how many lines to skip so that the sample names can be matched to the genotypes 1-to-1, taking into account the header of the sample file
     
     # Output file information
@@ -518,12 +507,14 @@ if __name__=="__main__":
     # If using spark < 2.0.0, use the pyspark module to make Spark context
     #conf=pyspark.SparkConf().setAppName(APP_NAME).set()#.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
-    sc  = spark.sparkContext
+    sc = spark.sparkContext
 
-    #sc = spark.sparkContext
     sc.setLogLevel("WARN")
     log4jLogger = sc._jvm.org.apache.log4j
     LOGGER = log4jLogger.LogManager.getLogger(__name__)
+    logger.info("Genotype input: {}".format(results.GENO))
+    logger.info("GWAS input: {}".format(results.GWAS))
+    logger.info("File output path: {}".format(results.OUTPUT))
     logger.info("Start reading files")
     logger.info("Using these genotype files: ")
 
@@ -539,7 +530,7 @@ if __name__=="__main__":
     genodata=sc.textFile(genoFileNamePattern)
     #logger.info("Using the GWAS file: {}".format(ntpath.basename(gwasFiles)))
     logger.info("Using the GWAS file: {}".format(gwasFiles))
-    gwastable=spark.read.option("header",GWAS_has_header).option("delimiter",GWAS_delim).csv(gwasFiles).cache()
+    gwastable=spark.read.option("header",GWAS_has_header).option("delimiter",gwas_delim).csv(gwasFiles).cache()
     logger.info("Showing top 5 rows of GWAS file")
     gwastable.show(5)
 
@@ -549,13 +540,14 @@ if __name__=="__main__":
     logger.info("Effect size : Column {}".format(gwas_or))
     logger.info("Allele A1 : Column {}".format(gwas_a1))
     logger.info("Allele A2 : Column {}".format(gwas_a2))
-    if use_maf:
+    if use_a1f:
         logger.info("A1 allele frequencies : Column {}".format(gwas_a1f))
+    logger.info("Note that Python counts first column as 0")
 
     # 1.1 Filter GWAS and prepare odds ratio
 
     # Filter the genotype to contain only the SNPs less than the maximum p value threshold in the GWAS
-    maxThreshold=max(thresholds)  # maximum p value
+    maxThreshold=max(thresholds)  # maximum p-value
     gwasOddsMapMax=filterGWASByP_DF(GWASdf=gwastable, pcolumn=gwas_p, idcolumn=gwas_id, oddscolumn=gwas_or, pHigh=maxThreshold, logOdds=log_or)
     gwasOddsMapMaxCA=sc.broadcast(gwasOddsMapMax).value  # Broadcast the map
 
@@ -567,21 +559,25 @@ if __name__=="__main__":
         logger.info("Genotype data format : VCF ")
 
         # [chrom, bp, snpid, A1, A2, *genotype]
-        genointermediate=genodata.filter(lambda line: ("#" not in line)).map(lambda line: line.split(GENO_delim)).filter(lambda line: line[geno_id] in gwasOddsMapMaxCA).map(lambda line: line[0:5]+[chunk.strip('"').split(":")[3] for chunk in line[geno_start::]]).map(lambda line: line[0:5]+[triplet.split(",") for triplet in line[5::]])
+        genointermediate=genodata.filter(lambda line: ("#" not in line)).map(lambda line: line.split(geno_delim)).filter(lambda line: line[geno_id] in gwasOddsMapMaxCA).map(lambda line: line[0:5]+[chunk.strip('"').split(":")[3] for chunk in line[geno_start::]]).map(lambda line: line[0:5]+[triplet.split(",") for triplet in line[5::]])
 
         ## (snpid, [genotypes])
         genotable=genointermediate.map(lambda line: (line[geno_id], list(itertools.chain.from_iterable(line[5::])))).mapValues(lambda geno: [float(x) for x in geno])
 
         if check_ref:
-            if use_maf:
-
-                logger.info("Determining strand alignment using MAF")
+            if use_a1f:
+                logger.info("Matching ambiguous SNPs between discovery GWAS and target genotype data using A1 frequencies")
+                
+                # organize genotype data table
                 genoA1f=genointermediate.map(lambda line: (line[geno_id], (line[geno_a1], line[geno_a1+1]), [float(x) for x in list(itertools.chain.from_iterable(line[5::]))])).map(lambda line: (line[0], line[1][0], line[1][1], getA1f(line[2]))).toDF(["Snpid_geno", "GenoA1", "GenoA2", "GenoA1f"])
-
-                # 'GwasA1F' means the allele of the A1 frequency in the GWAS
-                gwasA1f=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2], line[gwas_a1f])).toDF(["Snpid_gwas", "GwasA1", "GwasA2", "GwasA1F"])
-
-                # checktable = [ geno_snpid, genoA1, genoA2, genoA1f, gwas_snpid, gwasA1, gwasA2, gwasA1f]
+                
+                # organize GWAS data table
+                try:
+                    gwasA1f=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2], line[gwas_a1f])).toDF(["Snpid_gwas", "GwasA1", "GwasA2", "GwasA1F"]) # 'GwasA1F' refers to the allele frequency of A1 in the GWAS
+                except:
+                    logger.error("ERROR: Could not find A1 allele frequency column in GWAS file. Double check its column number. If it is absent, consider using --no_a1f flag to remove all ambiguous SNPs.")
+                    raise("ERROR: Could not find A1 allele frequency column in GWAS file. Double check its column number. If it is absent, consider using --no_a1f flag to remove all ambiguous SNPs.")
+                
                 checktable=genoA1f.join(gwasA1f, genoA1f["Snpid_geno"]==gwasA1f["Snpid_gwas"], "inner").cache()
                 if checkDup:
                     logger.info("Searching and removing duplicated SNPs")
@@ -591,27 +587,25 @@ if __name__=="__main__":
                     flagMap = checktable.rdd.map(lambda line: checkAlignmentDF(line, bpMap)).collectAsMap()
 
             else:
-                logger.info("Determining strand alignment without using MAF; SNPs with alleles that are reverse complements will be discarded")
+                logger.info("Not using A1 frequencies to match alleles for ambiguous SNPs; All ambiguous SNPs will be discarded")
                 genoalleles=genointermediate.map(lambda line: (line[geno_id], (line[geno_a1], line[geno_a1+1]), [float(x) for x in list(itertools.chain.from_iterable(line[5::]))])).map(lambda line: (line[0], line[1][0], line[1][1])).toDF(["Snpid_geno", "GenoA1", "GenoA2"])
-
                 gwasalleles=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2])).toDF(["Snpid_gwas", "GwasA1", "GwasA2"])
-
                 checktable=genoalleles.join(gwasalleles, genoalleles["Snpid_geno"]==gwasalleles["Snpid_gwas"], "inner").cache()
 
                 if checkDup:
                     logger.info("Searching and removing duplicated SNPs")
-                    flagList = checktable.rdd.map(lambda line: checkAlignmentDFnoMAF(line, bpMap)).collect()
+                    flagList = checktable.rdd.map(lambda line: checkAlignmentDFnoA1F(line, bpMap)).collect()
                     flagMap = rmDup(flagList)
                 else:
                     # no need to check the duplicates if the data is preprocessed
-                    flagMap = checktable.rdd.map(lambda line: checkAlignmentDFnoMAF(line, bpMap)).collectAsMap()
+                    flagMap = checktable.rdd.map(lambda line: checkAlignmentDFnoA1F(line, bpMap)).collectAsMap()
 
             logger.info("Generating genotype dosage while taking into account difference in strand alignment")
             flagMap=sc.broadcast(flagMap).value
             genotypeMax=genotable.filter(lambda line: line[0] in flagMap and flagMap[line[0]]!="discard").map(lambda line: makeGenotypeCheckRef(line, checkMap=flagMap)).cache()
 
         else:
-            logger.info("Generating genotype dosage without checking reference allele alignments")
+            logger.info("Generating genotype dosage without checking allele alignments")
             genotypeMax=genotable.mapValues(lambda line: makeGenotype(line)).cache()
             flagMap=False
             if checkDup:
@@ -621,12 +615,21 @@ if __name__=="__main__":
 
     elif filetype.lower() == "gen":
         logger.info("Genotype data format : GEN")
-        genotable=genodata.map(lambda line: line.split(GENO_delim)).filter(lambda line: line[geno_id] in gwasOddsMapMaxCA).map(lambda line: (line[geno_id], line[geno_start::])).mapValues(lambda geno: [float(call) for call in geno])
+        genotable=genodata.map(lambda line: line.split(geno_delim)).filter(lambda line: line[geno_id] in gwasOddsMapMaxCA).map(lambda line: (line[geno_id], line[geno_start::])).mapValues(lambda geno: [float(call) for call in geno])
         if check_ref:
-            if use_maf:
-                logger.info("Determining strand alignment using MAF")
-                genoA1f=genodata.map(lambda line: line.split(GENO_delim)).map(lambda line: (line[geno_id], line[geno_a1], line[geno_a1+1], getA1f([float(x) for x in line[geno_start::]]))).toDF(["Snpid_geno", "GenoA1", "GenoA2", "GenoA1f"])
-                gwasA1f=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2], line[gwas_a1f])).toDF(["Snpid_gwas", "GwasA1", "GwasA2", "GwasA1f" ])
+            if use_a1f:
+                logger.info("Matching ambiguous SNPs between discovery GWAS and target genotype data using A1 frequencies")
+
+                # organize genotype data table
+                genoA1f=genodata.map(lambda line: line.split(geno_delim)).map(lambda line: (line[geno_id], line[geno_a1], line[geno_a1+1], getA1f([float(x) for x in line[geno_start::]]))).toDF(["Snpid_geno", "GenoA1", "GenoA2", "GenoA1f"])
+
+                # organize GWAS data table
+                try:
+                    gwasA1f=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2], line[gwas_a1f])).toDF(["Snpid_gwas", "GwasA1", "GwasA2", "GwasA1f" ]) # 'GwasA1F' refers to the allele frequency of A1 in the GWAS
+                except:
+                    logger.error("ERROR: Could not find A1 allele frequency column in GWAS file. Double check its column number. If it is absent, consider using --no_a1f flag to remove all ambiguous SNPs.")
+                    raise("ERROR: Could not find A1 allele frequency column in GWAS file. Double check its column number. If it is absent, consider using --no_a1f flag to remove all ambiguous SNPs.")
+                
                 checktable=genoA1f.join(gwasA1f, genoA1f["Snpid_geno"]==gwasA1f["Snpid_gwas"], "inner").cache()
                 if checkDup:
                     logger.info("Searching and removing duplicated SNPs")
@@ -635,17 +638,17 @@ if __name__=="__main__":
                 else:
                     flagMap = checktable.rdd.map(lambda line: checkAlignmentDF(line, bpMap)).collectAsMap()
             else:
-                logger.info("Determining strand alignment without using MAF; SNPs with alleles that are reverse complements will be discarded")
-                genoalleles=genodata.map(lambda line: line.split(GENO_delim)).map(lambda line: (line[geno_id], line[geno_a1], line[geno_a1+1])).toDF(["Snpid_geno", "GenoA1", "GenoA2"])
+                logger.info("Not using A1 frequencies to match alleles for ambiguous SNPs; All ambiguous SNPs will be discarded")
+                genoalleles=genodata.map(lambda line: line.split(geno_delim)).map(lambda line: (line[geno_id], line[geno_a1], line[geno_a1+1])).toDF(["Snpid_geno", "GenoA1", "GenoA2"])
                 gwasalleles=gwastable.rdd.map(lambda line:(line[gwas_id], line[gwas_a1], line[gwas_a2])).toDF(["Snpid_gwas", "GwasA1", "GwasA2"])
                 checktable=genoalleles.join(gwasalleles, genoalleles["Snpid_geno"]==gwasalleles["Snpid_gwas"], "inner").cache()
 
                 if checkDup:
                     logger.info("Searching and removing duplicated SNPs")
-                    flagList = checktable.rdd.map(lambda line: checkAlignmentDFnoMAF(line, bpMap)).collect()
+                    flagList = checktable.rdd.map(lambda line: checkAlignmentDFnoA1F(line, bpMap)).collect()
                     flagMap = rmDup(flagList)
                 else:
-                    flagMap = checktable.rdd.map(lambda line: checkAlignmentDFnoMAF(line, bpMap)).collectAsMap()
+                    flagMap = checktable.rdd.map(lambda line: checkAlignmentDFnoA1F(line, bpMap)).collectAsMap()
 
             logger.info("Generating genotype dosage while taking into account difference in strand alignment")
             flagMap=sc.broadcast(flagMap).value
@@ -724,7 +727,7 @@ if __name__=="__main__":
 
     # Generate labels for samples
     #if filetype.lower()=="vcf":
-        #subjNames=genodata.filter(lambda line: "#CHROM" in line).map(lambda line: line.split(GENO_delim)[9::]).collect()[0]
+        #subjNames=genodata.filter(lambda line: "#CHROM" in line).map(lambda line: line.split(geno_delim)[9::]).collect()[0]
         #output=writePRS(prsDict,  outputPath, samplenames=subjNames)
 
     if sampleFilePath!="NOSAMPLE":
@@ -740,7 +743,7 @@ if __name__=="__main__":
     if pheno_file is not None:
         phenotypes, thresholds, r2All, pAll=regression(prsDict,pheno_file, pheno_delim, pheno_columns, pheno_no_header, covarColumns=covar_columns, outputName=outputPath, logger=logger)
 
-        r_square_plots(phenotypes,r2All,pAll, thresholds, outputName=outputPath, width = 3,bar_width = step)
+        r_square_plots(phenotypes, r2All, pAll, thresholds, outputName=outputPath, width=3, bar_width=step)
 
     sc.stop()
     seconds=time.time()-totalstart
@@ -750,6 +753,6 @@ if __name__=="__main__":
 
 # Remove "spark-warehouse" if it exists and is empty
 try:
-    os.rmdir(os.path.dirname(os.path.expanduser(outputPath))+"/spark-warehouse")
+    os.rmdir(os.path.dirname(os.path.abspath(os.path.expanduser(outputPath)))+"/spark-warehouse")
 except OSError:
     pass
