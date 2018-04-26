@@ -6,7 +6,7 @@ spark-submit ../PRS_run.py \
 example.vcf \
 gwasfile.txt \
 example_vcf \
---sample_file example.sample \
+--sample example.sample \
 --threshold_seq 0.1 0.5 0.05 \
 --snp_log
 
@@ -16,7 +16,7 @@ spark-submit ../PRS_run.py \
 example.gen \
 gwasfile.txt \
 example_gen \
---sample_file example.sample \
+--sample example.sample \
 --filetype GEN \
---no_maf \
+--no_a1f \
 --snp_log
