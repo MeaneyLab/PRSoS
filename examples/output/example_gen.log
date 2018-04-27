@@ -1,37 +1,82 @@
-2017-12-21 18:20:29,880 INFO : Start reading files
-2017-12-21 18:20:29,880 INFO : Using these genotype files: 
-2017-12-21 18:20:29,880 INFO : example.gen
-2017-12-21 18:20:29,880 INFO : Total of 1 genotype files
-2017-12-21 18:20:30,225 INFO : Using the GWAS file: gwasfile.txt
-2017-12-21 18:20:31,737 INFO : Showing top 5 rows of GWAS file
-2017-12-21 18:20:32,359 INFO : System recognizes the following information in the GWAS based on user inputs:
-2017-12-21 18:20:32,360 INFO : SNP ID : Column 1
-2017-12-21 18:20:32,360 INFO : P-values : Column 2
-2017-12-21 18:20:32,360 INFO : Effect size : Column 3
-2017-12-21 18:20:32,360 INFO : Allele A1 : Column 4
-2017-12-21 18:20:32,360 INFO : Allele A2 : Column 5
-2017-12-21 18:20:33,548 INFO : Genotype data format : GEN
-2017-12-21 18:20:33,548 INFO : Determining strand alignment without using MAF; All ambiguous SNPs will be discarded
-2017-12-21 18:20:36,583 INFO : Generating genotype dosage while taking into account difference in strand alignment
-2017-12-21 18:20:36,951 INFO : Dosage generated in 3.4 seconds
-2017-12-21 18:20:37,160 INFO : Detected 260 samples in genotype data
-2017-12-21 18:20:37,667 INFO : Started calculating PRS at each threshold
-2017-12-21 18:20:38,481 INFO : Filtered GWAS at threshold of 0.5. Time spent : 0.8 seconds
-2017-12-21 18:20:39,338 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 0.9 seconds
-2017-12-21 18:20:39,993 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.7 seconds
-2017-12-21 18:20:40,505 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.5 seconds
-2017-12-21 18:20:41,051 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.5 seconds
-2017-12-21 18:20:41,458 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.4 seconds
-2017-12-21 18:20:41,928 INFO : Filtered GWAS at threshold of 0.05. Time spent : 0.5 seconds
-2017-12-21 18:20:42,224 INFO : Finished calculating PRS at threshold of 0.05. Time spent : 0.3 seconds
-2017-12-21 18:20:42,659 INFO : Filtered GWAS at threshold of 0.01. Time spent : 0.4 seconds
-2017-12-21 18:20:42,860 INFO : Finished calculating PRS at threshold of 0.01. Time spent : 0.2 seconds
-2017-12-21 18:20:43,434 INFO : Filtered GWAS at threshold of 0.001. Time spent : 0.6 seconds
-2017-12-21 18:20:43,620 INFO : Finished calculating PRS at threshold of 0.001. Time spent : 0.2 seconds
-2017-12-21 18:20:44,093 INFO : Filtered GWAS at threshold of 0.0001. Time spent : 0.5 seconds
-2017-12-21 18:20:44,123 WARNING : No SNPs left at threshold 0.0001
-2017-12-21 18:20:44,123 INFO : Successfully wrote log to example_gen.snplog
-2017-12-21 18:20:44,127 INFO : This sample file was used to provide sample ID : example.sample
-2017-12-21 18:20:44,127 INFO : Collected 260 sample labels
-2017-12-21 18:20:44,129 INFO : Successfully wrote scores to example_gen.score
-2017-12-21 18:20:45,123 INFO : Total calculation time : 0 hrs 00 min 16 sec
+2018-04-27 17:34:29,997 INFO : Genotype input: example.gen
+2018-04-27 17:34:29,997 INFO : GWAS input: gwasfile.txt
+2018-04-27 17:34:29,997 INFO : File output path: example_gen
+2018-04-27 17:34:29,997 INFO : Start reading files
+2018-04-27 17:34:29,997 INFO : Using these genotype files: 
+2018-04-27 17:34:29,997 INFO : example.gen
+2018-04-27 17:34:29,997 INFO : Total of 1 genotype files
+2018-04-27 17:34:30,435 INFO : Using the GWAS file: gwasfile.txt
+2018-04-27 17:34:32,605 INFO : Showing top 5 rows of GWAS file
+2018-04-27 17:34:33,382 INFO : System recognizes the following information in the GWAS based on user inputs:
+2018-04-27 17:34:33,382 INFO : SNP ID : Column 0
+2018-04-27 17:34:33,382 INFO : P-values : Column 1
+2018-04-27 17:34:33,382 INFO : Effect size : Column 2
+2018-04-27 17:34:33,382 INFO : Allele A1 : Column 3
+2018-04-27 17:34:33,382 INFO : Allele A2 : Column 4
+2018-04-27 17:34:33,383 INFO : Note that Python counts first column as 0
+2018-04-27 17:34:35,214 INFO : Genotype data format : GEN
+2018-04-27 17:34:35,214 INFO : Not using A1 frequencies to match alleles for ambiguous SNPs; All ambiguous SNPs will be discarded
+2018-04-27 17:34:37,688 INFO : Generating genotype dosage while taking into account difference in strand alignment
+2018-04-27 17:34:38,623 INFO : Dosage generated in 3.4 seconds
+2018-04-27 17:34:38,781 INFO : Detected 260 samples in genotype data
+2018-04-27 17:34:39,771 INFO : Started calculating PRS at each threshold
+2018-04-27 17:34:41,002 INFO : Filtered GWAS at threshold of 0.5. Time spent : 1.2 seconds
+2018-04-27 17:34:42,446 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 1.4 seconds
+2018-04-27 17:34:43,394 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.9 seconds
+2018-04-27 17:34:44,113 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.7 seconds
+2018-04-27 17:34:44,946 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.8 seconds
+2018-04-27 17:34:45,399 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.5 seconds
+2018-04-27 17:34:46,157 INFO : Filtered GWAS at threshold of 0.05. Time spent : 0.8 seconds
+2018-04-27 17:34:46,448 INFO : Finished calculating PRS at threshold of 0.05. Time spent : 0.3 seconds
+2018-04-27 17:34:47,159 INFO : Filtered GWAS at threshold of 0.01. Time spent : 0.7 seconds
+2018-04-27 17:34:47,300 INFO : Finished calculating PRS at threshold of 0.01. Time spent : 0.1 seconds
+2018-04-27 17:34:47,994 INFO : Filtered GWAS at threshold of 0.001. Time spent : 0.7 seconds
+2018-04-27 17:34:48,086 INFO : Finished calculating PRS at threshold of 0.001. Time spent : 0.1 seconds
+2018-04-27 17:34:48,806 INFO : Filtered GWAS at threshold of 0.0001. Time spent : 0.7 seconds
+2018-04-27 17:34:48,841 WARNING : No SNPs left at threshold 0.0001
+2018-04-27 17:34:48,841 INFO : Successfully wrote log to example_gen.snplog
+2018-04-27 17:34:48,848 INFO : This sample file was used to provide sample ID : example.sample
+2018-04-27 17:34:48,848 INFO : Collected 260 sample IDs
+2018-04-27 17:34:48,851 INFO : Successfully wrote scores to example_gen.score
+2018-04-27 17:34:49,842 INFO : Total calculation time : 0 hrs 00 min 21 sec
+2018-04-27 17:38:47,506 INFO : Genotype input: example.gen
+2018-04-27 17:38:47,507 INFO : GWAS input: gwasfile.txt
+2018-04-27 17:38:47,507 INFO : File output path: example_gen
+2018-04-27 17:38:47,507 INFO : Start reading files
+2018-04-27 17:38:47,507 INFO : Using these genotype files: 
+2018-04-27 17:38:47,507 INFO : example.gen
+2018-04-27 17:38:47,507 INFO : Total of 1 genotype files
+2018-04-27 17:38:47,946 INFO : Using the GWAS file: gwasfile.txt
+2018-04-27 17:38:50,108 INFO : Showing top 5 rows of GWAS file
+2018-04-27 17:38:50,896 INFO : System recognizes the following information in the GWAS based on user inputs:
+2018-04-27 17:38:50,896 INFO : SNP ID : Column 0
+2018-04-27 17:38:50,896 INFO : P-values : Column 1
+2018-04-27 17:38:50,897 INFO : Effect size : Column 2
+2018-04-27 17:38:50,897 INFO : Allele A1 : Column 3
+2018-04-27 17:38:50,897 INFO : Allele A2 : Column 4
+2018-04-27 17:38:50,897 INFO : Note that Python counts first column as 0
+2018-04-27 17:38:52,682 INFO : Genotype data format : GEN
+2018-04-27 17:38:52,682 INFO : Not using A1 frequencies to match alleles for ambiguous SNPs; All ambiguous SNPs will be discarded
+2018-04-27 17:38:55,171 INFO : Generating genotype dosage while taking into account difference in strand alignment
+2018-04-27 17:38:56,106 INFO : Dosage generated in 3.4 seconds
+2018-04-27 17:38:56,280 INFO : Detected 260 samples in genotype data
+2018-04-27 17:38:57,257 INFO : Started calculating PRS at each threshold
+2018-04-27 17:38:58,458 INFO : Filtered GWAS at threshold of 0.5. Time spent : 1.2 seconds
+2018-04-27 17:38:59,898 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 1.4 seconds
+2018-04-27 17:39:00,838 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.9 seconds
+2018-04-27 17:39:01,546 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.7 seconds
+2018-04-27 17:39:02,373 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.8 seconds
+2018-04-27 17:39:02,829 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.5 seconds
+2018-04-27 17:39:03,591 INFO : Filtered GWAS at threshold of 0.05. Time spent : 0.8 seconds
+2018-04-27 17:39:03,883 INFO : Finished calculating PRS at threshold of 0.05. Time spent : 0.3 seconds
+2018-04-27 17:39:04,592 INFO : Filtered GWAS at threshold of 0.01. Time spent : 0.7 seconds
+2018-04-27 17:39:04,732 INFO : Finished calculating PRS at threshold of 0.01. Time spent : 0.1 seconds
+2018-04-27 17:39:05,422 INFO : Filtered GWAS at threshold of 0.001. Time spent : 0.7 seconds
+2018-04-27 17:39:05,511 INFO : Finished calculating PRS at threshold of 0.001. Time spent : 0.1 seconds
+2018-04-27 17:39:06,239 INFO : Filtered GWAS at threshold of 0.0001. Time spent : 0.7 seconds
+2018-04-27 17:39:06,274 WARNING : No SNPs left at threshold 0.0001
+2018-04-27 17:39:06,274 INFO : Successfully wrote log to example_gen.snplog
+2018-04-27 17:39:06,281 INFO : This sample file was used to provide sample ID : example.sample
+2018-04-27 17:39:06,281 INFO : Collected 260 sample IDs
+2018-04-27 17:39:06,284 INFO : Successfully wrote scores to example_gen.score
+2018-04-27 17:39:07,273 INFO : Total calculation time : 0 hrs 00 min 21 sec

@@ -1,42 +1,92 @@
-2017-12-21 17:05:13,467 INFO : Start reading files
-2017-12-21 17:05:13,468 INFO : Using these genotype files: 
-2017-12-21 17:05:13,468 INFO : example.vcf
-2017-12-21 17:05:13,468 INFO : Total of 1 genotype files
-2017-12-21 17:05:13,771 INFO : Using the GWAS file: gwasfile.txt
-2017-12-21 17:05:15,323 INFO : Showing top 5 rows of GWAS file
-2017-12-21 17:05:15,893 INFO : System recognizes the following information in the GWAS based on user inputs:
-2017-12-21 17:05:15,893 INFO : SNP ID : Column 0
-2017-12-21 17:05:15,894 INFO : P-values : Column 1
-2017-12-21 17:05:15,894 INFO : Effect size : Column 2
-2017-12-21 17:05:15,894 INFO : Allele A1 : Column 3
-2017-12-21 17:05:15,894 INFO : Allele A2 : Column 4
-2017-12-21 17:05:15,894 INFO : A1 allele frequencies : Column 5
-2017-12-21 17:05:17,088 INFO : Genotype data format : VCF 
-2017-12-21 17:05:17,088 INFO : Determining strand alignment using MAF
-2017-12-21 17:05:21,086 INFO : Generating genotype dosage while taking into account difference in strand alignment
-2017-12-21 17:05:21,473 INFO : Dosage generated in 4.4 seconds
-2017-12-21 17:05:21,639 INFO : Detected 260 samples in genotype data
-2017-12-21 17:05:22,123 INFO : Started calculating PRS at each threshold
-2017-12-21 17:05:22,839 INFO : Filtered GWAS at threshold of 0.5. Time spent : 0.7 seconds
-2017-12-21 17:05:23,693 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 0.9 seconds
-2017-12-21 17:05:24,419 INFO : Filtered GWAS at threshold of 0.45. Time spent : 0.7 seconds
-2017-12-21 17:05:25,155 INFO : Finished calculating PRS at threshold of 0.45. Time spent : 0.7 seconds
-2017-12-21 17:05:25,874 INFO : Filtered GWAS at threshold of 0.4. Time spent : 0.7 seconds
-2017-12-21 17:05:26,561 INFO : Finished calculating PRS at threshold of 0.4. Time spent : 0.7 seconds
-2017-12-21 17:05:27,207 INFO : Filtered GWAS at threshold of 0.35. Time spent : 0.6 seconds
-2017-12-21 17:05:27,842 INFO : Finished calculating PRS at threshold of 0.35. Time spent : 0.6 seconds
-2017-12-21 17:05:28,492 INFO : Filtered GWAS at threshold of 0.3. Time spent : 0.6 seconds
-2017-12-21 17:05:29,105 INFO : Finished calculating PRS at threshold of 0.3. Time spent : 0.6 seconds
-2017-12-21 17:05:29,734 INFO : Filtered GWAS at threshold of 0.25. Time spent : 0.6 seconds
-2017-12-21 17:05:30,246 INFO : Finished calculating PRS at threshold of 0.25. Time spent : 0.5 seconds
-2017-12-21 17:05:30,891 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.6 seconds
-2017-12-21 17:05:31,372 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.5 seconds
-2017-12-21 17:05:32,039 INFO : Filtered GWAS at threshold of 0.15. Time spent : 0.7 seconds
-2017-12-21 17:05:32,414 INFO : Finished calculating PRS at threshold of 0.15. Time spent : 0.4 seconds
-2017-12-21 17:05:33,046 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.6 seconds
-2017-12-21 17:05:33,365 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.3 seconds
-2017-12-21 17:05:33,368 INFO : Successfully wrote log to example_vcf.snplog
-2017-12-21 17:05:33,369 INFO : This sample file was used to provide sample ID : example.sample
-2017-12-21 17:05:33,369 INFO : Collected 260 sample labels
-2017-12-21 17:05:33,372 INFO : Successfully wrote scores to example_vcf.score
-2017-12-21 17:05:34,365 INFO : Total calculation time : 0 hrs 00 min 22 sec
+2018-04-27 17:33:55,962 INFO : Genotype input: example.vcf
+2018-04-27 17:33:55,962 INFO : GWAS input: gwasfile.txt
+2018-04-27 17:33:55,962 INFO : File output path: example_vcf
+2018-04-27 17:33:55,963 INFO : Start reading files
+2018-04-27 17:33:55,963 INFO : Using these genotype files: 
+2018-04-27 17:33:55,963 INFO : example.vcf
+2018-04-27 17:33:55,963 INFO : Total of 1 genotype files
+2018-04-27 17:33:56,397 INFO : Using the GWAS file: gwasfile.txt
+2018-04-27 17:33:58,581 INFO : Showing top 5 rows of GWAS file
+2018-04-27 17:33:59,354 INFO : System recognizes the following information in the GWAS based on user inputs:
+2018-04-27 17:33:59,354 INFO : SNP ID : Column 0
+2018-04-27 17:33:59,354 INFO : P-values : Column 1
+2018-04-27 17:33:59,355 INFO : Effect size : Column 2
+2018-04-27 17:33:59,355 INFO : Allele A1 : Column 3
+2018-04-27 17:33:59,355 INFO : Allele A2 : Column 4
+2018-04-27 17:33:59,355 INFO : A1 allele frequencies : Column 5
+2018-04-27 17:33:59,355 INFO : Note that Python counts first column as 0
+2018-04-27 17:34:01,165 INFO : Genotype data format : VCF 
+2018-04-27 17:34:01,165 INFO : Matching ambiguous SNPs between discovery GWAS and target genotype data using A1 frequencies
+2018-04-27 17:34:05,707 INFO : Generating genotype dosage while taking into account difference in strand alignment
+2018-04-27 17:34:06,655 INFO : Dosage generated in 5.5 seconds
+2018-04-27 17:34:06,833 INFO : Detected 260 samples in genotype data
+2018-04-27 17:34:07,834 INFO : Started calculating PRS at each threshold
+2018-04-27 17:34:09,025 INFO : Filtered GWAS at threshold of 0.5. Time spent : 1.2 seconds
+2018-04-27 17:34:10,476 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 1.5 seconds
+2018-04-27 17:34:11,640 INFO : Filtered GWAS at threshold of 0.45. Time spent : 1.2 seconds
+2018-04-27 17:34:12,865 INFO : Finished calculating PRS at threshold of 0.45. Time spent : 1.2 seconds
+2018-04-27 17:34:13,954 INFO : Filtered GWAS at threshold of 0.4. Time spent : 1.1 seconds
+2018-04-27 17:34:15,073 INFO : Finished calculating PRS at threshold of 0.4. Time spent : 1.1 seconds
+2018-04-27 17:34:16,140 INFO : Filtered GWAS at threshold of 0.35. Time spent : 1.1 seconds
+2018-04-27 17:34:17,155 INFO : Finished calculating PRS at threshold of 0.35. Time spent : 1.0 seconds
+2018-04-27 17:34:18,164 INFO : Filtered GWAS at threshold of 0.3. Time spent : 1.0 seconds
+2018-04-27 17:34:19,033 INFO : Finished calculating PRS at threshold of 0.3. Time spent : 0.9 seconds
+2018-04-27 17:34:20,000 INFO : Filtered GWAS at threshold of 0.25. Time spent : 1.0 seconds
+2018-04-27 17:34:20,758 INFO : Finished calculating PRS at threshold of 0.25. Time spent : 0.8 seconds
+2018-04-27 17:34:21,686 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.9 seconds
+2018-04-27 17:34:22,311 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.6 seconds
+2018-04-27 17:34:23,163 INFO : Filtered GWAS at threshold of 0.15. Time spent : 0.9 seconds
+2018-04-27 17:34:23,716 INFO : Finished calculating PRS at threshold of 0.15. Time spent : 0.6 seconds
+2018-04-27 17:34:24,531 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.8 seconds
+2018-04-27 17:34:24,941 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.4 seconds
+2018-04-27 17:34:24,944 INFO : Successfully wrote log to example_vcf.snplog
+2018-04-27 17:34:24,944 INFO : This sample file was used to provide sample ID : example.sample
+2018-04-27 17:34:24,945 INFO : Collected 260 sample IDs
+2018-04-27 17:34:24,949 INFO : Successfully wrote scores to example_vcf.score
+2018-04-27 17:34:25,940 INFO : Total calculation time : 0 hrs 00 min 32 sec
+2018-04-27 17:40:36,243 INFO : Genotype input: example.vcf
+2018-04-27 17:40:36,243 INFO : GWAS input: gwasfile.txt
+2018-04-27 17:40:36,243 INFO : File output path: example_vcf
+2018-04-27 17:40:36,243 INFO : Start reading files
+2018-04-27 17:40:36,243 INFO : Using these genotype files: 
+2018-04-27 17:40:36,243 INFO : example.vcf
+2018-04-27 17:40:36,243 INFO : Total of 1 genotype files
+2018-04-27 17:40:36,682 INFO : Using the GWAS file: gwasfile.txt
+2018-04-27 17:40:38,868 INFO : Showing top 5 rows of GWAS file
+2018-04-27 17:40:39,662 INFO : System recognizes the following information in the GWAS based on user inputs:
+2018-04-27 17:40:39,662 INFO : SNP ID : Column 0
+2018-04-27 17:40:39,662 INFO : P-values : Column 1
+2018-04-27 17:40:39,662 INFO : Effect size : Column 2
+2018-04-27 17:40:39,662 INFO : Allele A1 : Column 3
+2018-04-27 17:40:39,662 INFO : Allele A2 : Column 4
+2018-04-27 17:40:39,662 INFO : A1 allele frequencies : Column 5
+2018-04-27 17:40:39,662 INFO : Note that Python counts first column as 0
+2018-04-27 17:40:41,501 INFO : Genotype data format : VCF 
+2018-04-27 17:40:41,501 INFO : Matching ambiguous SNPs between discovery GWAS and target genotype data using A1 frequencies
+2018-04-27 17:40:46,005 INFO : Generating genotype dosage while taking into account difference in strand alignment
+2018-04-27 17:40:46,933 INFO : Dosage generated in 5.4 seconds
+2018-04-27 17:40:47,102 INFO : Detected 260 samples in genotype data
+2018-04-27 17:40:48,091 INFO : Started calculating PRS at each threshold
+2018-04-27 17:40:49,294 INFO : Filtered GWAS at threshold of 0.5. Time spent : 1.2 seconds
+2018-04-27 17:40:50,723 INFO : Finished calculating PRS at threshold of 0.5. Time spent : 1.4 seconds
+2018-04-27 17:40:51,871 INFO : Filtered GWAS at threshold of 0.45. Time spent : 1.1 seconds
+2018-04-27 17:40:53,080 INFO : Finished calculating PRS at threshold of 0.45. Time spent : 1.2 seconds
+2018-04-27 17:40:54,176 INFO : Filtered GWAS at threshold of 0.4. Time spent : 1.1 seconds
+2018-04-27 17:40:55,302 INFO : Finished calculating PRS at threshold of 0.4. Time spent : 1.1 seconds
+2018-04-27 17:40:56,367 INFO : Filtered GWAS at threshold of 0.35. Time spent : 1.1 seconds
+2018-04-27 17:40:57,334 INFO : Finished calculating PRS at threshold of 0.35. Time spent : 1.0 seconds
+2018-04-27 17:40:58,345 INFO : Filtered GWAS at threshold of 0.3. Time spent : 1.0 seconds
+2018-04-27 17:40:59,211 INFO : Finished calculating PRS at threshold of 0.3. Time spent : 0.9 seconds
+2018-04-27 17:41:00,190 INFO : Filtered GWAS at threshold of 0.25. Time spent : 1.0 seconds
+2018-04-27 17:41:00,915 INFO : Finished calculating PRS at threshold of 0.25. Time spent : 0.7 seconds
+2018-04-27 17:41:01,848 INFO : Filtered GWAS at threshold of 0.2. Time spent : 0.9 seconds
+2018-04-27 17:41:02,488 INFO : Finished calculating PRS at threshold of 0.2. Time spent : 0.6 seconds
+2018-04-27 17:41:03,346 INFO : Filtered GWAS at threshold of 0.15. Time spent : 0.9 seconds
+2018-04-27 17:41:03,893 INFO : Finished calculating PRS at threshold of 0.15. Time spent : 0.5 seconds
+2018-04-27 17:41:04,711 INFO : Filtered GWAS at threshold of 0.1. Time spent : 0.8 seconds
+2018-04-27 17:41:05,133 INFO : Finished calculating PRS at threshold of 0.1. Time spent : 0.4 seconds
+2018-04-27 17:41:05,135 INFO : Successfully wrote log to example_vcf.snplog
+2018-04-27 17:41:05,136 INFO : This sample file was used to provide sample ID : example.sample
+2018-04-27 17:41:05,136 INFO : Collected 260 sample IDs
+2018-04-27 17:41:05,140 INFO : Successfully wrote scores to example_vcf.score
+2018-04-27 17:41:06,133 INFO : Total calculation time : 0 hrs 00 min 32 sec

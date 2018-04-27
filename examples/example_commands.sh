@@ -7,6 +7,7 @@ example.vcf \
 gwasfile.txt \
 example_vcf \
 --sample example.sample \
+--sample_id 0 1 \
 --threshold_seq 0.1 0.5 0.05 \
 --snp_log
 
@@ -17,6 +18,7 @@ example.gen \
 gwasfile.txt \
 example_gen \
 --sample example.sample \
+--sample_id 0 1 \
 --filetype GEN \
 --no_a1f \
 --snp_log
