@@ -280,19 +280,23 @@ Optional arguments:
                         GWAS has column names.
   --sample SAMPLE_FILE
                         Path and name of the file that contain the sample
-                        labels. It is assumed that the sample labels are
+                        IDs. It is assumed that the sample IDs are
                         already in the same order as in the genotype file.
   --sample_delim "SAMPLE_DELIM"
                         Delimiter of the sample file. Default is comma. Set 
                         quotation marks around the delimiter when applied.
   --sample_id ID_COLUMN1 ID_COLUMN2 ID_COLUMN3 ...
                         Specify which columns in the sample file are used as
-                        labels. Can use one integer to specify one column, or
+                        IDs. Can use one integer to specify one column, or
                         multiple integers to specify multiple columns, with 
                         first column being 0. Default is 0.
+                                Tip: 
+                                    This can be used to add other variables from
+                                    the sample file to the PRS output (e.g., 
+                                    gender or family membership)
   --sample_skip_header SAMPLE_HEADER_LINES
                         Specify how many header lines to ignore in the sample 
-                        file. Default is 2, which assumes that the sample labels
+                        file. Default is 2, which assumes that the sample IDs
                         start on the third line.
   --pheno PHENO_FILE
                         Specify the path to the data file for the phenotype.
