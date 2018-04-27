@@ -191,7 +191,10 @@ def getSampleNames(sampleFileName, sampleDelim, sampleIDCol, skip=0):
         for i in sampleIDCol:
             subjNames=[x[i] for x in subjList[skip::]]
             subjNames=[name.strip('"') for name in subjNames]
-            column=["Label-"+str(counter)]+subjNames
+            if len(sampleIDCol)==1:
+                column=["ID"]+subjNames
+            else:
+                column=["ID"+str(counter)]+subjNames
             labels.append(column)
             counter+=1
     return labels
@@ -209,9 +212,9 @@ def writePRS(prsResults, outputFile, logger, samplenames=None, dialect=None):
     samplesize=len(onescore)
     if not samplenames:
         logger.warn("No sample names provided, generating sample names")
-        samplenames=[["Label"]+["Sample"+str(i+1) for i in range(samplesize)]]
+        samplenames=[["ID"]+["Sample"+str(i+1) for i in range(samplesize)]]
     labelnumber=len(samplenames[0])-1
-    logger.info("Collected {} sample labels".format(labelnumber))
+    logger.info("Collected {} sample IDs".format(labelnumber))
     if labelnumber==samplesize:
         outputdata=samplenames
         pvaluelist=sorted(list(prsResults.keys()))
@@ -369,8 +372,8 @@ if __name__=="__main__":
 
     parser.add_argument("--sample", action="store", dest="sample_file", default="NOSAMPLE",help="Path and name of the file that contain the sample labels. It is assumed that the sample labels are already in the same order as in the genotype file.")
     parser.add_argument("--sample_delim", action="store", default=" ", dest="sample_delim", help="Delimiter of the sample file. Default delimiter is space. Set quotation marks around the delimiter when applied.")
-    parser.add_argument("--sample_id", action="store", default=[0], type=int, nargs="+", dest="sample_ID", help="Specify which columns in the sample file are used as labels. Can use one integer to specify one column or multiple integers to specify multiple columns, with first column being 0. Default is 0.")
-    parser.add_argument("--sample_skip_header", action="store", default=2, type=int, dest="sample_skip", help="Specify how many header lines to ignore in the sample file. Default is 2, which assumes that the sample labels start on the third line.")
+    parser.add_argument("--sample_id", action="store", default=[0], type=int, nargs="+", dest="sample_ID", help="Specify which columns in the sample file are used as IDs. Can use one integer to specify one column or multiple integers to specify multiple columns, with first column being 0. Default is 0. Tip: This can be used to add other variables from the sample file to the PRS output (e.g., gender or family membership)")
+    parser.add_argument("--sample_skip_header", action="store", default=2, type=int, dest="sample_skip", help="Specify how many header lines to ignore in the sample file. Default is 2, which assumes that the sample IDs start on the third line.")
 
     parser.add_argument("--pheno", action="store", default=None, dest="pheno_file", help="Specify the path to the data file for the phenotype. It is assumed that the phenotype data is organized in the same order as the samples in the genotype file.")
     parser.add_argument("--pheno_delim", action="store", default=",", dest="pheno_delim", help="Specify the delimiter for the phenotype data file. Default delimiter is comma. Set quotation marks around the delimiter when applied.")
