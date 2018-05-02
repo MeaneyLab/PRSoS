@@ -115,13 +115,11 @@ source ~/.bash_profile
 python --version # this should indicate that you have Python 2
 pip install pyspark # you can append "--user" to install psypark to user's home folder
 spark-submit --version # this tests that "spark-submit" command is working; it should display Spark profile
-
 ## We will now install PRSoS
 wget https://github.com/MeaneyLab/PRSoS/archive/master.zip # "git clone https://github.com/MeaneyLab/PRSoS.git" also works if you have git installed
 unzip master.zip # this is not necessary if you used the "git" command
 cd ~/PRSoS*
 pip install -r requirements.txt # you can append "--user" to install to user’s home folder
-
 ## We will now submit a test run on all available cores
 spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
 
