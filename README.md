@@ -14,91 +14,178 @@ To clone the repository, use:
 git clone https://github.com/MeaneyLab/PRSoS.git
 ```
 
-## Software requirements and installation instructions
+## Software requirements and detailed installation instructions
 
-The notebooks and scripts require the following to run:
-+ Spark-2.0.0 + (Apache)
-+ Python 2.7 (not Python 3.0)
+There are many ways to configure Spark (local execution, standalone cluster, or Yarn modes), each different on Windows, MacOS, and Linux. 
+For simplicity it is now easier to use a quick [PyPi (pip)](https://pypi.org/project/pip/) that is common on any platform where Python is installed, and use its bundled version of spark-submit for client runs on the local file system. 
+If you favour configuring Spark to run as a service with [Hadoop Distributed File System (HDFS)](https://searchdatamanagement.techtarget.com/definition/Hadoop-Distributed-File-System-HDFS) and workers / executors, 
+there are many resources for this available online.
 
-The prerequisite to install Spark are:
-+ Java 8 (Oracle)
-+ Scala 
-+ sbt
+PRSoS scripts require the following to run:
++ [Spark-2.0.0 + (Apache)](https://spark.apache.org/downloads.html)
++ Python 2.7 (**not Python 3.0,** and preferably in [Anaconda](https://www.anaconda.com/what-is-anaconda/), which is a data science distribution of Python)
++ Java 8 (preferably [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html))
 
 The required Python modules are:
 + matplotlib
 + pandas
 + numpy
 + statsmodels
++ pyspark
 
-### Linux
+Below are platform-specific installation guides:
++ [Windows](#win10)
++ [Mac OS](#mac)
++ [Linux](#linux)
 
-Instructions for installing Apache Spark on Linux can be found [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/).
+### <a name="win10"></a>Windows (Win10)
 
-The Python modules can be installed independently. To install them all at once, first make sure pip is installed on your computer, then run:
-```
-cd PRSoS
-pip install -r requirements.txt
-```
-
-### Mac OS
-
-Requires [Homebrew](https://brew.sh) to perform the required installations.
-
-1. Install code-select by typing the following in Terminal:
+1. Download and install Oracle JDK8 from [here](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html).
+2. Download and install Anaconda2 v5.10 Python from [here](https://repo.anaconda.com/archive/Anaconda2-5.1.0-Windows-x86_64.exe). Use default options.
+3. To install Spark, open an elevated command prompt and issue a pip or conda install:
     ```
-    xcode-select --install
+    pip install pyspark
     ```
-
-2. Install Scala:
+    or
     ```
-    brew install scala
+    conda install -c conda-forge pyspark=2.2.1
     ```
+    
+4. Once installed, try issuing the following command. 
+   ```
+   spark-submit --version
+   ```
+   If you get nothing, reopen your elevated command prompt and try again.
 
-3. Install Spark:
+5. Then git clone (or [download zipfile](https://github.com/MeaneyLab/PRSoS/archive/master.zip) and unzip), access the folder, and install required modules:
+   ```
+   git clone https://github.com/MeaneyLab/PRSoS.git
+   cd PRSoS*
+   pip install –r requirements.txt
+   ```
+   
+6. Finally, perform this PRSoS test run to check if the installation was successful:
+   ```
+   spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+   ```
+
+Note 1: While it is not necessary to use Hadoop and its HDFS filesystem, running Spark in Windows will give some messages such as “**Failed to locate the winutils binary**” when it fails to find %HADOOP_HOME and %HADOOP_HOME%\bin in the Windows environment. 
+[Here](http://alvincjin.blogspot.ca/2016/08/setup-hadoophome-in-windows.html) is how to resolve this:
+ + Download [winutils.exe] (https://github.com/steveloughran/winutils) and store it in a Hadoop bin directory (e.g., C:\Users\hadoop\bin).
+ + Then open an elevated command prompt and run the following: 
+
     ```
-    brew install apache-spark
-    export SPARK_HOME=/usr/local/Cellar/apache-spark/2.1.1/libexec
-    export PYTHONPATH=/usr/local/Cellar/apache-spark/2.1.1/libexec/python/:$PYTHONPATH
-    ```
-
-    (Note: The version of Spark should be changed to be the one you install.)
-
-4. Install Python:
-    ```
-    brew install python
-    pip install psutil
-    ```
-
-### Windows (Win10)
-
-1. Download the installation file for Windows from the following link: https://www.continuum.io/downloads
-
-2. Install Anaconda Python by double clicking the downloaded file and use the default options.
-
-3. Download and install some prerequisite applications:
-    + scala: http://www.scala-lang.org/download/
-    + java7 sdk (if neccessary): http://www.oracle.com/technetwork/java/javase/downloads/index.html
-
-4. Download winutils.exe from HortonWorks repo or Steve Loughran's GitHub (https://github.com/steveloughran/winutils) and store it in a bin directory under a created Hadoop home directory (e.g., C:\Users\hadoop\bin).
-
-5. Afterwards, open cmd and run the following:
-    ```
-    setx SPARK_HOME "C:\Users\spark-2.1.1-bin-hadoop2.7"
-    setx PATH " %SPARK_HOME%\bin;%PATH%"
     setx HADOOP_HOME "C:\Users\hadoop"
-    ```
-    
-6. To install PySpark, run: 
-    ```
-    conda install -c conda-forge pyspark=2.1.1
+    setx PATH "%HADOOP_HOME%\bin;%PATH%"
     ```
 
-    (If "conda" command is not found, run the above command line in Anaconda Prompt--you can find this through the Taskbar search menu)
-    
-7. To install the Python modules, you can use conda or pip.
+Note 2: Hadoop and Spark versions should be compatible, e.g., use hadoop-2.7.1 for Spark 2 ([here is the direct link to winutils.exe binary](https://github.com/steveloughran/winutils/blob/master/hadoop-2.7.1/bin/winutils.exe)).
 
 Alternative instructions for installing Spark can be found [here](http://www.informit.com/articles/article.aspx?p=2755929&seqNum=3).
+
+### <a name="mac"></a>Mac OS
+
+[Homebrew](https://brew.sh) package manager in MacOS can be used to install everything necessary for PRSoS. 
+For this reason, Spark is available both via "brew" as well as PythonPI's "pip install". 
+After installing Homebrew, and brew installing Java8 and Anaconda2, we will use the pip install method to get Spark.
+
+If you already have Homebrew, remember to run "brew doctor" before anything to fix possible issues. 
+Copying this into a MacOS Terminal will install Homebrew:
+```
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+Then you may run [this PRSoS preparation script](http://www.meaney.lab.mcgill.ca/PRSoS-prep-bash.sh) with step by step installation for PRSoS. 
+This installation script is compatible with MacOS and Linux. 
+Execute the installation script from the Terminal using:
+```
+bash PRSoS-prep-bash.sh
+```
+
+<details><summary>The installation script essentially runs the following setup. Click here to expand/collapse the code.</summary>
+<pre><code>
+## Pre-requisite installations and preparations
+xcode-select --install # this installs Xcode if it's not already installed
+brew tap caskroom/cask
+brew cask install java8 # this installs Java 8
+brew install python@2 # this installs Python 2
+echo `export PATH="/usr/local/opt/python2/libexec/bin:$PATH"` >> ~/.bash_profile
+source ~/.bash_profile
+#pip2 install --upgrade pip setuptools --user
+python --version # this should indicate that you have Python 2
+pip install pyspark # you can append "--user" to install psypark to user's home folder
+spark-submit --version # this tests that "spark-submit" command is working; it should display Spark profile
+
+## We will now install PRSoS
+wget https://github.com/MeaneyLab/PRSoS/archive/master.zip # "git clone https://github.com/MeaneyLab/PRSoS.git" also works if you have git installed
+unzip master.zip # this is not necessary if you used the "git" command
+cd ~/PRSoS*
+pip install -r requirements.txt # you can append "--user" to install to user’s home folder
+
+## We will now submit a test run on all available cores
+spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+
+</code></pre>
+</details>
+
+### <a name="linux"></a>Linux
+
+You may run [this PRSoS preparation script](http://www.meaney.lab.mcgill.ca/PRSoS-prep-bash.sh) with step by step installation for PRSoS. 
+This installation script is compatible with MacOS and Linux. 
+Execute the installation script from the Terminal using:
+```
+bash PRSoS-prep-bash.sh
+```
+
+For the classical method of installing Spark locally using pre-built binaries, or how to install with "conda" look [here](http://sigdelta.com/blog/how-to-install-pyspark-locally/).
+
+<details><summary>The joy of Spark installs in Linux is the automation. A quick install can be done by running the following in Terminal. Click here to expand/collapse the code.</summary>
+<pre><code>
+# ** Anaconda2 install
+cd ~/
+wget https://repo.anaconda.com/archive/Anaconda2-5.1.0-Linux-x86_64.sh
+bash Anaconda2-5.1.0-Linux-x86_64.sh -b -p $HOME/anaconda2
+echo -e '##**Added for PRSoS anaconda python**##\nexport PATH="$HOME/anaconda2/bin:$PATH" # comment out beginning of this line with "#" to disable Anaconda and revert to old python' >> ~/.bashrc
+source ~/.bashrc
+python --version #This should now say Anaconda python
+pip --version #needed to install pyspark and dependency modules
+# ** Spark install
+pip install pyspark --user # you can omit "--user" if you have root / sudo (i.e., system administrator) privileges
+spark-submit --version # this tests that "spark-submit" command is working; it should display Spark profile with Scala and Java versions
+# **git clone PRSoS, make sure you have installed git !
+wget https://github.com/MeaneyLab/PRSoS/archive/master.zip # "git clone https://github.com/MeaneyLab/PRSoS.git" also works if you have git installed
+unzip master.zip # this is not necessary if you used the "git" command
+cd PRSoS*
+pip install -r requirements.txt --user # omit --user if you have root / sudo priveleges
+cd ~/PRSoS* ## now do a PRSoS test run using spark-submit
+sleep 5
+spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+
+</code></pre>
+</details>
+<br>
+
+At this point you should see a successful PRSoS spark-submit.
+
+<details><summary>A SparkUI service is viewable in your browser at [http://127.0.0.1:4040](http://127.0.0.1:4040/) for the duration of the run. 
+Most errors at this point are due to missing java ($JAVA_HOME) or incompatible versions. 
+If you have not yet installed Oracle JDK 8, then you can do this quickly by pasting the following. Click here to expand/collapse the code.</summary>
+<pre><code>
+java -version
+cd ~/
+wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.tar.gz
+tar xvzf jdk-8u171-linux-x64.tar.gz
+cho "#**Added for PRSoS Java**" >> ~/.bashrc
+echo "export JAVA_HOME=~/jdk1.8.0_171" >> ~/.bashrc
+echo 'export PATH="$JAVA_HOME/bin/:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+java -version # this should return java version "1.8.0_171"
+
+</code></pre>
+</details>
+<br>
+
+For further help on installing Apache Spark in Linux as an administrator, look [here](https://www.santoshsrinivas.com/installing-apache-spark-on-ubuntu-16-04/).
 
 ## What this pipeline does
 + Match the strand alignment between genotype and GWAS data (by default), and then
@@ -107,6 +194,30 @@ Alternative instructions for installing Spark can be found [here](http://www.inf
 ## What this pipeline cannot do
 + Perform quality control of genotype data (depending on the file format, quality control can be performed using [QCTOOL](http://www.well.ox.ac.uk/~gav/qctool_v2/), [PLINK](https://www.cog-genomics.org/plink/1.9/), [VCFtools](http://vcftools.sourceforge.net), etc.)
 + Perform linkage disequilibrium clumping or pruning (linkage disequilibrium clumping or pruning can can be performed using [PLINK](https://www.cog-genomics.org/plink/1.9/). However, note that dosage data (e.g., posterior probabilities) are not compatible with PLINK file formats)
+
+## Guideline for linkage disequilibrium clumping
+PRSoS does not perform linkage disequilibrium (LD) corrections as it can be performed using various methods and may or may not be necessary for your PRS. 
+[PLINK's LD clumping algorithm](https://www.cog-genomics.org/plink/1.9/postproc#clump) is currently the most popular approach. 
+The following guide (compatible with MacOS and Linux Terminal.app) can be used to prepare the required GWAS file with LD clump:
+```
+# for the present example, change the current working directory to the PRSoS/examples/ directory
+cd ~/PRSoS/examples # the path may be different depending on where you located the PRSoS directory
+
+# make binary PLINK files from GEN files for clumping
+plink --data example --keep-allele-order --make-bed --out example_gen2plink 
+
+# run clumping
+plink \
+--bfile example_gen2plink \
+--clump gwasfile.txt \
+--clump-p1 1 --clump-p2 1 --clump-kb 500 --clump-r2 0.2 `# set your LD clumping parameters` \
+--clump-snp-field "SNP" --clump-field "P" `# this is not necessary if the SNP ID and p-value column headers are already labeled "SNP" and "P", respectively; you can change these field names in the command to match your GWAS file if they are different` \
+--out example_gwas_clump_output
+
+# create GWAS file with only index SNPs from the clumping output
+awk 'NR==FNR {FILE1[$3]=$0; next} ($1 in FILE1) {print $0}' `# "($1 in FILE1)" assumes the SNP ID column is first column in the GWAS file; change "$1" to the SNP ID column number if it is different` \
+example_gwas_clump_output.clumped gwasfile.txt > gwasfile_example_clumped.txt
+```
 
 ## Default format
 ### GWAS
@@ -171,13 +282,16 @@ A .score file contains the sample ID, the PRS and the SNP count for each p-value
 
 #### .snplog
 
-A .snplog file contains the SNP list and their effect allele for each PRS p-value threshold applied. It also contains the list of shared SNPs between the GWAS and genotype data that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication.
+A .snplog file contains the SNP list and their effect allele for each PRS p-value threshold applied. 
+It also contains the list of shared SNPs between the GWAS and genotype data that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication.
 
 
 ## Running command-line script PRS_run.py
 ### Spark-submit command
 
-Use ```spark-submit``` to run the PRS calculations script. You can add other Spark parameters before the script name to control how Spark operates (e.g., --master local[K] to use K number of local worker threads). More Spark-submit options are found [here](http://spark.apache.org/docs/latest/submitting-applications.html).
+Use ```spark-submit``` to run the PRS calculations script. 
+You can add other Spark parameters before the script name to control how Spark operates (e.g., --master local[K] to use K number of local worker threads). 
+More Spark-submit options are found [here](http://spark.apache.org/docs/latest/submitting-applications.html).
 
 ```
 spark-submit PRS_run.py
@@ -280,23 +394,19 @@ Optional arguments:
                         GWAS has column names.
   --sample SAMPLE_FILE
                         Path and name of the file that contain the sample
-                        IDs. It is assumed that the sample IDs are
+                        labels. It is assumed that the sample labels are
                         already in the same order as in the genotype file.
   --sample_delim "SAMPLE_DELIM"
                         Delimiter of the sample file. Default is comma. Set 
                         quotation marks around the delimiter when applied.
   --sample_id ID_COLUMN1 ID_COLUMN2 ID_COLUMN3 ...
                         Specify which columns in the sample file are used as
-                        IDs. Can use one integer to specify one column, or
+                        labels. Can use one integer to specify one column, or
                         multiple integers to specify multiple columns, with 
                         first column being 0. Default is 0.
-                                Tip: 
-                                    This can be used to add other variables from
-                                    the sample file to the PRS output (e.g., 
-                                    gender or family membership)
   --sample_skip_header SAMPLE_HEADER_LINES
                         Specify how many header lines to ignore in the sample 
-                        file. Default is 2, which assumes that the sample IDs
+                        file. Default is 2, which assumes that the sample labels
                         start on the third line.
   --pheno PHENO_FILE
                         Specify the path to the data file for the phenotype.
