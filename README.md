@@ -105,6 +105,7 @@ bash PRSoS-prep-bash.sh
 <details><summary>The installation script essentially runs the following setup. Click here to expand/collapse the code.</summary>
 <pre><code>
 ## Pre-requisite installations and preparations
+cd ~/
 xcode-select --install # this installs Xcode if it's not already installed
 brew tap caskroom/cask
 brew cask install java8 # this installs Java 8
@@ -173,7 +174,7 @@ java -version
 cd ~/
 wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8/jdk-8u171-linux-x64.tar.gz
 tar xvzf jdk-8u171-linux-x64.tar.gz
-cho "#**Added for PRSoS Java**" >> ~/.bashrc
+echo "#**Added for PRSoS Java**" >> ~/.bashrc
 echo "export JAVA_HOME=~/jdk1.8.0_171" >> ~/.bashrc
 echo 'export PATH="$JAVA_HOME/bin/:$PATH"' >> ~/.bashrc
 source ~/.bashrc
