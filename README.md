@@ -1,5 +1,5 @@
-# PRS-on-SPARK
-PRS-on-SPARK (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. 
+# PRS-on-Spark
+PRS-on-Spark (PRSoS) generates polygenic risk scores (PRS) for large genotype data, including imputed genotype posterior probabilites. 
 It can use multiple cores to increase processing efficiency (i.e., reduce processing time). 
 PRSoS is compatible with Linux, Mac OS, and Windows. It runs using [Apache Spark](https://spark.apache.org) and [Python](https://www.python.org/download/releases/2.7.2/).
 
