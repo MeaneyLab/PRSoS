@@ -386,8 +386,8 @@ Optional arguments:
   --gwas_a1f GWAS_A1F   Column number in your GWAS that contains frequency of
                         A1, with first column being 0. Default is 5.
   --gwas_delim "GWAS_DELIM"
-                        Delimiter of the GWAS file. Default is tab-delimited. 
-                        Set quotation marks around the delimiter when applied.
+                        Delimiter of the GWAS file. Default is tab. Set 
+                        quotation marks around the delimiter when applied.
   --gwas_no_header      Adding this parameter signals that there is no header 
                         in the GWAS data input. The default is to assume that 
                         GWAS has column names.
@@ -396,7 +396,7 @@ Optional arguments:
                         IDs. It is assumed that the sample IDs are
                         already in the same order as in the genotype file.
   --sample_delim "SAMPLE_DELIM"
-                        Delimiter of the sample file. Default is comma. Set 
+                        Delimiter of the sample file. Default is space. Set 
                         quotation marks around the delimiter when applied.
   --sample_id ID_COLUMN1 ID_COLUMN2 ID_COLUMN3 ...
                         Specify which columns in the sample file are used as
