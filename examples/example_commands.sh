@@ -2,7 +2,7 @@
 
 ### using vcf file to create nine polygenic scores at sequential p-value thresholds 0.1, 0.15, 0.2, ..., 0.5
 
-spark-submit ../PRS_run.py \
+spark-submit ../PRSoS.py \
 example.vcf \
 gwasfile.txt \
 example_vcf \
@@ -13,7 +13,7 @@ example_vcf \
 
 ### using gen file to create PRS while removing ambiguous SNPs
 
-spark-submit ../PRS_run.py \
+spark-submit ../PRSoS.py \
 example.gen \
 gwasfile.txt \
 example_gen \

@@ -130,7 +130,7 @@ def checkAlignmentDF(dataframe, bpMap):
         # for ambiguous SNPs
         elif genoA2==bpMap[genoA1] and (genoA1==bpMap[gwasA1] or genoA1==bpMap[gwasA2]) and (genoA2==bpMap[gwasA2] or genoA2==bpMap[gwasA1]):
             if gwasA1F=="NO":
-                flag="discard"    # discard ambiguous SNP is A1 frequency is not provided
+                flag="discard"    # discard ambiguous SNP if A1 frequency is not provided
             else:
                 gwasA1F=float(gwasA1F)
                 genoA1Fdiff=genoA1F*10-5

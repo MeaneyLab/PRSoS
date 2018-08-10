@@ -66,7 +66,7 @@ Below are platform-specific installation guides:
    
 6. Finally, perform this PRSoS test run to check if the installation was successful:
    ```
-   spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+   spark-submit --master local[*] PRSoS.py examples/example.vcf examples/gwasfile.txt test_output
    ```
 
 Note 1: While it is not necessary to use Hadoop and its HDFS filesystem, running Spark in Windows will give some messages such as “**Failed to locate the winutils binary**” when it fails to find %HADOOP_HOME and %HADOOP_HOME%\bin in the Windows environment. 
@@ -122,7 +122,7 @@ unzip master.zip # this is not necessary if you used the "git" command
 cd ~/PRSoS*
 pip install -r requirements.txt # you can append "--user" to install to user’s home folder
 ## We will now submit a test run on all available cores
-spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+spark-submit --master local[*] PRSoS.py examples/example.vcf examples/gwasfile.txt test_output
 
 </code></pre>
 </details>
@@ -158,7 +158,7 @@ cd PRSoS*
 pip install -r requirements.txt --user # omit --user if you have root / sudo priveleges
 cd ~/PRSoS* ## now do a PRSoS test run using spark-submit
 sleep 5
-spark-submit --master local[*] PRS_run.py examples/example.vcf examples/gwasfile.txt test_output
+spark-submit --master local[*] PRSoS.py examples/example.vcf examples/gwasfile.txt test_output
 
 </code></pre>
 </details>
@@ -285,7 +285,7 @@ A .snplog file contains the SNP list and their effect allele for each PRS p-valu
 It also contains the list of shared SNPs between the GWAS and genotype data that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication.
 
 
-## Running command-line script PRS_run.py
+## Running command-line script PRSoS.py
 ### Spark-submit command
 
 Use ```spark-submit``` to run the PRS calculations script. 
@@ -293,7 +293,7 @@ You can add other Spark parameters before the script name to control how Spark o
 More Spark-submit options are found [here](http://spark.apache.org/docs/latest/submitting-applications.html).
 
 ```
-spark-submit PRS_run.py
+spark-submit PRSoS.py
 ```
 
 Followed by three positional parameters (mandatory):
@@ -333,30 +333,30 @@ The above example would yield the sequence 0.1, 0.11 ,0.12, ... 0.49, 0.5. Note 
 To calculate PRS using the provided test sample files and generate the SNP log output:
 
 ```
-spark-submit PRS_run.py test_sample.gen gwas.clump.txt test_output --sample test_sample.sample --filetype GEN --snp_log
+spark-submit PRSoS.py test_sample.gen gwas.clump.txt test_output --sample test_sample.sample --filetype GEN --snp_log
 ```
 
 To calculate PRS from a series of .vcf files, while checking the allele alignment between the genotype and the GWAS, and log transform risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample samplefile.csv --sample_id 0 --log_or --thresholds 0.2 0.1 0.05
+spark-submit PRSoS.py "VCF_number*.vcf" gwas.clump.txt output.csv --sample samplefile.csv --sample_id 0 --log_or --thresholds 0.2 0.1 0.05
 ```
 
 To calculate PRS from a series of .gen files, without checking allele alignments, using a GWAS with no header, and not transform the risk effect, using p-value thresholds of 0.2, 0.1, 0.05:
 
 ```
-spark-submit PRS_run.py "GEN_number*.gen" gwas.clump.txt output.csv --filetype GEN --sample samplefile.csv --sample_id 0 --no_check_ref --gwas_no_header --thresholds 0.2 0.1 0.05
+spark-submit PRSoS.py "GEN_number*.gen" gwas.clump.txt output.csv --filetype GEN --sample samplefile.csv --sample_id 0 --no_check_ref --gwas_no_header --thresholds 0.2 0.1 0.05
 ```
 
 ### Parameters
 
 A description of the parameters for the script can be obtained by typing: 
 ```
-python PRS_run.py --help
+python PRSoS.py --help
 ```
 Command-line type flags are used to specify how the scores are calculated. 
 
-#### Full list of parameters when type `python PRS_run.py --help`
+#### Full list of parameters when type `python PRSoS.py --help`
 ```
 Positional arguments:
   GENO                  Name of the genotype files, can be a name or path, or
