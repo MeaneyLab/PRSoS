@@ -229,7 +229,7 @@ pval = p-value of the association in the GWAS data
 
 or = odds ratio in the GWAS data, or it can be log odds ratio or beta (if it is the odds ratio, add `--log_or` flag to use log odds ratio)
 
-a1 = reference allele for the odds ratio
+a1 = reference/effect allele (to which the odds ratio belong)
 
 a2 = alternative allele
 
@@ -272,18 +272,54 @@ This is a default format for the genotype data returned from [Sanger Institute](
 Details about the format can be found [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). 
 PRSoS uses posterior genotype probabilities (see FORMAT = GP) as genotype input.
 
-### Output file
+### Output files
 The output format of PRS results and SNP logs is comma-delimited. 
 
-#### .score
+#### .score.csv
 
-A .score file contains the sample ID, the PRS and the SNP count for each p-value threshold applied.
+A .score.csv file contains the sample ID, the PRS and the SNP count for each p-value threshold applied.
 
-#### .snplog
+E.g.,
 
-A .snplog file contains the SNP list and their effect allele for each PRS p-value threshold applied. 
+|     ID1|     ID2|     SNP_count_0.01|     PRS_0.01|     SNP_count_0.05|     PRS_0.05|
+|--------|--------|-------------------|-------------|-------------------|-------------|
+| Family1|   Child|                 13|  -0.02797601|                101|  -0.00647242|
+| Family1|  Mother|                 13|  -0.02933779|                101|  -0.00509516|
+| Family1|  Father|                 13|  -0.02380963|                101|  -0.00641128|
+| Family2|   Child|                 13|  -0.03056985|                101|  -0.00888138|
+| Family2|  Father|                 13|  -0.03028115|                101|  -0.00732302|
+| Family3|   Child|                 13|  -0.02817242|                101|  -0.00796898|
+
+The columns are as follows:
+
+ID1, ID2, ID..., etc. = sample IDs provided from the sample file (see --sample_id description below)
+
+SNP_count_0.01, SNP_count_0.05, SNP_count_..., etc. = the number of SNPs that contribute to the PRS_0.01, PRS_0.05, PRS_..., etc.
+
+PRS_0.01, PRS_0.05, PRS_..., etc. = the polygenic risk score at the p-value threshold 0.01, 0.05, ..., etc. (see --thresholds description below)
+
+#### .snplog.csv
+
+A .snplog.csv file contains the SNP list and their effect allele for each PRS p-value threshold applied. 
 It also contains the list of shared SNPs between the GWAS and genotype data that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication.
 
+E.g.,
+
+|     PRS_0.01|     PRS_0.01_flag|     PRS_0.05|     PRS_0.05_flag|     Discard|
+|-------------|------------------|-------------|------------------|------------|
+|   rs10017793|                A1|   rs10017793|                A1|   rs1276324|
+|   rs11157862|                A1|   rs10501467|                A2|   rs2278342|
+|   rs17329328|                A2|   rs10514162|                A2|   rs9919144|
+|   rs17772344|                A1|   rs11157862|                A1|    rs997850|
+|    rs1994908|                A2|   rs17329328|                A2|            |
+
+The columns are as follows:
+
+PRS_0.01, PRS_0.05, PRS_..., etc. = list of SNPs that contribute the indicated PRS p-value thresholds (see --thresholds description below)
+
+PRS_0.01_flag, PRS_0.05_flag, PRS_..._flag, etc. = the allele in the genotype file that was matched with the effect allele in the GWAS data and weighted by the log odds or beta
+
+Discard = list of SNPs that are discarded because of strand-ambiguity, mismatching reference alleles, or SNP duplication
 
 ## Running command-line script PRSoS.py
 ### Spark-submit command
@@ -472,7 +508,7 @@ Optional arguments:
                         match the allele names in the GWAS description are 
                         indicated in the 'discard' column. This record will be 
                         saved to a file with the name specified in the OUTPUT 
-                        flag, with .snplog as file extension.
+                        flag, with .snplog.csv as file extension.
 
 ``` 
 

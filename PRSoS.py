@@ -192,7 +192,7 @@ def getSampleNames(sampleFileName, sampleDelim, sampleIDCol, skip=0):
             subjNames=[x[i] for x in subjList[skip::]]
             subjNames=[name.strip('"') for name in subjNames]
             if len(sampleIDCol)==1:
-                column=["ID"]+subjNames
+                column=["ID1"]+subjNames
             else:
                 column=["ID"+str(counter)]+subjNames
             labels.append(column)
@@ -207,12 +207,12 @@ def rmDup(checkList):
 
 # Output each PRS for each sample in the form of [sample, *scores]
 def writePRS(prsResults, outputFile, logger, samplenames=None, dialect=None):
-    scorefile=outputFile+".score"
+    scorefile=outputFile+".score.csv"
     onescore=list(prsResults.values())[0][1]
     samplesize=len(onescore)
     if not samplenames:
         logger.warn("No sample names provided, generating sample names")
-        samplenames=[["ID"]+["Sample"+str(i+1) for i in range(samplesize)]]
+        samplenames=[["ID1"]+["Sample"+str(i+1) for i in range(samplesize)]]
     labelnumber=len(samplenames[0])-1
     logger.info("Collected {} sample IDs".format(labelnumber))
     if labelnumber==samplesize:
@@ -246,7 +246,7 @@ def writePRS(prsResults, outputFile, logger, samplenames=None, dialect=None):
 
 # Output SNP log
 def writeSNPlog(snpidmap, outputFile, logger, flagMap=None, dialect=None):
-    snplogfile=outputFile+".snplog"
+    snplogfile=outputFile+".snplog.csv"
     outputdata=[]
     maxT=max(snpidmap.keys())
     maxLen=len(snpidmap[maxT])
@@ -351,7 +351,7 @@ if __name__=="__main__":
     from pyspark import SparkConf, SparkContext
     # ATTN: python index starts at 0, so if you want to specify the second column, use 1
     # Define column number for contents in GWAS
-    parser = argparse.ArgumentParser(description='PARAMETERS', version='1.8')
+    parser = argparse.ArgumentParser(description='PARAMETERS', version='1.8.1')
     # Mandatory positional arguments
     parser.add_argument("GENO", action="store", help="Name of the genotype files, can be a name or path, or name patterns with wildcard character.")
     parser.add_argument("GWAS", action="store", help="Name of the GWAS file, can be a name or path.")
@@ -392,7 +392,7 @@ if __name__=="__main__":
 
     parser.add_argument("--check_dup", action="store_true", default=False, dest="checkdup", help="Add this flag to discard SNPs that are duplicated, which will take extra time. By default, the script will assume there are no duplicated SNPs.")
 
-    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog as file extension.")
+    parser.add_argument("--snp_log", action="store_true", default=False, dest="snp_log", help="Add this flag to record the SNPs that are used at each threshold. It will also report whether the A1 or A2 allele in the genotype data was used as reference for the risk effect. Any SNPs that meet the p-value threshold criteria but has allele names that do not match the allele names in the GWAS description are indicated in the 'discard' column. This record will be saved to a file with the name specified in the OUTPUT flag, with .snplog.csv as file extension.")
 
 
     results=parser.parse_args()
