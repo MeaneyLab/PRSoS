@@ -20,14 +20,14 @@ import argparse
 
 
 # Packages for the regression
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-from plottings import *
-import statsmodels.formula.api as smf
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
+#import numpy as np
+#import pandas as pd
+#
+#from plottings import *
+#import statsmodels.formula.api as smf
 import logging
 
 # Takes a line in the genotype file and return the frequency of A1 allele
@@ -279,67 +279,67 @@ def writeSNPlog(snpidmap, outputFile, logger, flagMap=None, dialect=None):
     return outputdata
 
 
-def regression(scoreMap,phenoFile, phenoDelim, phenoColumns, phenoNoHeader, covarColumns, outputName, logger):
-    samplesize=len(scoreMap[list(scoreMap.keys())[0]][1])
-    outputFile="{}.regression".format(outputName)
-    if phenoNoHeader:
-        header=None
-    else:
-        header=0
-    pvalueList=sorted(list(scoreMap.keys()))
-    prsData=pd.DataFrame({pvalue:scoreMap[pvalue][1] for pvalue in pvalueList})
-    prsData.columns=["prs{}".format(re.sub("\.","_",str(x))) for x in prsData.columns.tolist()]
-    thresholdNames=prsData.columns.tolist()
-
-    phenodata=pd.read_table(phenoFile, header=header, sep=phenoDelim)
-    phenodata.columns=[re.sub("\.","_",str(x)) for x in phenodata.columns]
-
-
-    assert samplesize==phenodata.shape[0], "Unequal sample size in pheno file and PRS data"
-
-    covariateNames=phenodata.columns[covarColumns].tolist()
-    covar=phenodata[covariateNames]
-    phenotypes=[]
-    thresholds=pvalueList
-    r2All=[]
-    pAll=[]
-    with open(outputFile, "w") as f:
-        f.write("\n")
-
-    for columnNumber in phenoColumns:
-
-        pheno=phenodata.iloc[:,columnNumber]
-        phenoName=phenodata.columns[columnNumber]
-        logger.info("Regression with phenotype {}".format(phenoName))
-        phenotypes.append(phenoName)
-        regressdata=pd.concat([pheno, prsData, covar], axis=1)
-        regressdataClean=regressdata.dropna(axis=0)
-        logger.info("After removing rows with missing data, {} sample removed, {} samples remain".format(regressdata.shape[0]-regressdataClean.shape[0], regressdataClean.shape[0]))
-
-        plist=[]
-        r2list=[]
-
-        for pvalue in thresholdNames:
-            formula="{} ~ {}+1".format(phenoName, "+".join([pvalue]+covariateNames))
-            lm = smf.ols(formula, data=regressdataClean).fit()
-            plist.append(lm.pvalues[1])
-            r2list.append(lm.rsquared)
-
-            summary=lm.summary2()
-            oldindex=summary.tables[1].index.tolist()
-            oldindex[1]=re.sub("_", ".", oldindex[1])
-            summary.tables[1].index=oldindex
-            summary.title="{} : {} + {}".format(summary.title, phenoName, oldindex[1])
-            with open(outputFile, "a") as f:
-              f.write("\n")
-              f.write(summary.as_text())
-              f.write("\n")
-            logger.info("Regression finished using {}. Summary written to {}".format(re.sub("_", ".", pvalue),outputFile))
-        pAll.append(plist)
-        r2All.append(r2list)
-
-    logger.info("All regression(s) finished")
-    return phenotypes, thresholds, r2All, pAll
+#def regression(scoreMap,phenoFile, phenoDelim, phenoColumns, phenoNoHeader, covarColumns, outputName, logger):
+#    samplesize=len(scoreMap[list(scoreMap.keys())[0]][1])
+#    outputFile="{}.regression".format(outputName)
+#    if phenoNoHeader:
+#        header=None
+#    else:
+#        header=0
+#    pvalueList=sorted(list(scoreMap.keys()))
+#    prsData=pd.DataFrame({pvalue:scoreMap[pvalue][1] for pvalue in pvalueList})
+#    prsData.columns=["prs{}".format(re.sub("\.","_",str(x))) for x in prsData.columns.tolist()]
+#    thresholdNames=prsData.columns.tolist()
+#
+#    phenodata=pd.read_table(phenoFile, header=header, sep=phenoDelim)
+#    phenodata.columns=[re.sub("\.","_",str(x)) for x in phenodata.columns]
+#
+#
+#    assert samplesize==phenodata.shape[0], "Unequal sample size in pheno file and PRS data"
+#
+#    covariateNames=phenodata.columns[covarColumns].tolist()
+#    covar=phenodata[covariateNames]
+#    phenotypes=[]
+#    thresholds=pvalueList
+#    r2All=[]
+#    pAll=[]
+#    with open(outputFile, "w") as f:
+#        f.write("\n")
+#
+#    for columnNumber in phenoColumns:
+#
+#        pheno=phenodata.iloc[:,columnNumber]
+#        phenoName=phenodata.columns[columnNumber]
+#        logger.info("Regression with phenotype {}".format(phenoName))
+#        phenotypes.append(phenoName)
+#        regressdata=pd.concat([pheno, prsData, covar], axis=1)
+#        regressdataClean=regressdata.dropna(axis=0)
+#        logger.info("After removing rows with missing data, {} sample removed, {} samples remain".format(regressdata.shape[0]-regressdataClean.shape[0], regressdataClean.shape[0]))
+#
+#        plist=[]
+#        r2list=[]
+#
+#        for pvalue in thresholdNames:
+#            formula="{} ~ {}+1".format(phenoName, "+".join([pvalue]+covariateNames))
+#            lm = smf.ols(formula, data=regressdataClean).fit()
+#            plist.append(lm.pvalues[1])
+#            r2list.append(lm.rsquared)
+#
+#            summary=lm.summary2()
+#            oldindex=summary.tables[1].index.tolist()
+#            oldindex[1]=re.sub("_", ".", oldindex[1])
+#            summary.tables[1].index=oldindex
+#            summary.title="{} : {} + {}".format(summary.title, phenoName, oldindex[1])
+#            with open(outputFile, "a") as f:
+#              f.write("\n")
+#              f.write(summary.as_text())
+#              f.write("\n")
+#            logger.info("Regression finished using {}. Summary written to {}".format(re.sub("_", ".", pvalue),outputFile))
+#        pAll.append(plist)
+#        r2All.append(r2list)
+#
+#    logger.info("All regression(s) finished")
+#    return phenotypes, thresholds, r2All, pAll
 
 
 if __name__=="__main__":
@@ -355,7 +355,7 @@ if __name__=="__main__":
     # Mandatory positional arguments
     parser.add_argument("GENO", action="store", help="Name of the genotype files, can be a name or path, or name patterns with wildcard character.")
     parser.add_argument("GWAS", action="store", help="Name of the GWAS file, can be a name or path.")
-    parser.add_argument("OUTPUT", action="store", help="The path and name stem for the output files. One name will be used for the score output, the snp log (optional), and the regression output. This is similar to the --out flag in PLINK.")
+    parser.add_argument("OUTPUT", action="store", help="The path and name stem for the output files. One name will be used for the score output and the snp log (optional). This is similar to the --out flag in PLINK.")
 
     # Optional arguments
     parser.add_argument("--app_name", action="store", default="PRS", dest="app_name", help="Give your spark application a name. Default is PRS.")
@@ -375,11 +375,11 @@ if __name__=="__main__":
     parser.add_argument("--sample_id", action="store", default=[0], type=int, nargs="+", dest="sample_ID", help="Specify which columns in the sample file are used as IDs. Can use one integer to specify one column or multiple integers to specify multiple columns, with first column being 0. Default is 0. Tip: This can be used to add other variables from the sample file to the PRS output (e.g., gender or family membership)")
     parser.add_argument("--sample_skip_header", action="store", default=2, type=int, dest="sample_skip", help="Specify how many header lines to ignore in the sample file. Default is 2, which assumes that the sample IDs start on the third line.")
 
-    parser.add_argument("--pheno", action="store", default=None, dest="pheno_file", help="Specify the path to the data file for the phenotype. It is assumed that the phenotype data is organized in the same order as the samples in the genotype file.")
-    parser.add_argument("--pheno_delim", action="store", default=",", dest="pheno_delim", help="Specify the delimiter for the phenotype data file. Default delimiter is comma. Set quotation marks around the delimiter when applied.")
-    parser.add_argument("--pheno_no_header", action="store_true", default=False, dest="pheno_no_header", help="Specify whether the phenotype has a header row.")
-    parser.add_argument("--pheno_columns", action="store", default=[0], type=int, nargs="+", dest="pheno_columns", help="Column number(s) in the phenotype file that contain the phenotype data. Multiple column numbers can be specified to conduct regression with multiple phenotypes, with first column being 0. Default is 0.")
-    parser.add_argument("--covar_columns", action="store", default=[], type=int, nargs="+", dest="covar_columns", help="Column number(s) in the phenotype file that contain the covariate data. Multiple column numbers can be specified to conduct regression with multiple covariates, with first column being 0. No column number is set as default.")
+#    parser.add_argument("--pheno", action="store", default=None, dest="pheno_file", help="Specify the path to the data file for the phenotype. It is assumed that the phenotype data is organized in the same order as the samples in the genotype file.")
+#    parser.add_argument("--pheno_delim", action="store", default=",", dest="pheno_delim", help="Specify the delimiter for the phenotype data file. Default delimiter is comma. Set quotation marks around the delimiter when applied.")
+#    parser.add_argument("--pheno_no_header", action="store_true", default=False, dest="pheno_no_header", help="Specify whether the phenotype has a header row.")
+#    parser.add_argument("--pheno_columns", action="store", default=[0], type=int, nargs="+", dest="pheno_columns", help="Column number(s) in the phenotype file that contain the phenotype data. Multiple column numbers can be specified to conduct regression with multiple phenotypes, with first column being 0. Default is 0.")
+#    parser.add_argument("--covar_columns", action="store", default=[], type=int, nargs="+", dest="covar_columns", help="Column number(s) in the phenotype file that contain the covariate data. Multiple column numbers can be specified to conduct regression with multiple covariates, with first column being 0. No column number is set as default.")
 
     parser.add_argument("--thresholds", action="store", default=[0.5, 0.2, 0.1, 0.05, 0.01, 0.001, 0.0001], dest="thresholds", help="The p-value thresholds that controls which SNPs are used from the GWAS. Specifying the p-values simply by input one after another. Default is 0.5, 0.2, 0.1, 0.05, 0.01, 0.001, 0.0001.", nargs="+", type=float)
     parser.add_argument("--threshold_seq", action="store", default=None, dest="threshold_seq", help="As an alternative to --thresholds, use this flag to define a sequence that contains all the p-value thresholds that filters which SNPs are used from the GWAS. Input is three numbers separated by space: lower bound, upper bound, step size. Default is None (i.e., not used). This flag automatically overwrites the threshold list defined under --thresholds.", nargs="+", type=float)
@@ -484,19 +484,17 @@ if __name__=="__main__":
 
     # Get the name of the genotype files
     genoFileNamePattern=results.GENO
-    if "file:/" in genoFileNamePattern:
-        genoFileNamePattern=re.sub("file://", "", genoFileNamePattern)
 
 
     # Get the whole list of the file names
     genoFileNames=glob.glob(genoFileNamePattern)
 
     # Parameter for phenotype regression
-    pheno_file=results.pheno_file
-    pheno_columns=results.pheno_columns
-    pheno_delim=results.pheno_delim
-    pheno_no_header=results.pheno_no_header
-    covar_columns=results.covar_columns
+#    pheno_file=results.pheno_file
+#    pheno_columns=results.pheno_columns
+#    pheno_delim=results.pheno_delim
+#    pheno_no_header=results.pheno_no_header
+#    covar_columns=results.covar_columns
 
 
     ''' ####  start spark   ##### '''
@@ -742,11 +740,11 @@ if __name__=="__main__":
     else:
         output=writePRS(prsDict,  outputPath,logger=logger, samplenames=None)
 
-
-    if pheno_file is not None:
-        phenotypes, thresholds, r2All, pAll=regression(prsDict,pheno_file, pheno_delim, pheno_columns, pheno_no_header, covarColumns=covar_columns, outputName=outputPath, logger=logger)
-
-        r_square_plots(phenotypes, r2All, pAll, thresholds, outputName=outputPath, width=3, bar_width=step)
+#
+#    if pheno_file is not None:
+#        phenotypes, thresholds, r2All, pAll=regression(prsDict,pheno_file, pheno_delim, pheno_columns, pheno_no_header, covarColumns=covar_columns, outputName=outputPath, logger=logger)
+#
+#        r_square_plots(phenotypes, r2All, pAll, thresholds, outputName=outputPath, width=3, bar_width=step)
 
     sc.stop()
     seconds=time.time()-totalstart

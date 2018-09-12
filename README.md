@@ -399,8 +399,8 @@ Positional arguments:
                         name patterns with wildcard character.
   GWAS                  Name of the GWAS file, can be a name or path.
   OUTPUT                The path and name stem for the output files. One name
-                        will be used for the score output, the snp log 
-                        (optional), and the regression output. This is similar 
+                        will be used for the score output and the snp log 
+                        (optional). This is similar 
                         to the --out flag in PLINK.
 
 Optional arguments:
@@ -447,26 +447,6 @@ Optional arguments:
                         Specify how many header lines to ignore in the sample 
                         file. Default is 2, which assumes that the sample IDs
                         start on the third line.
-  --pheno PHENO_FILE
-                        Specify the path to the data file for the phenotype.
-                        It is assumed that the phenotype data is organized in
-                        the same order as the samples in the genotype file.
-  --pheno_delim "PHENO_DELIM"
-                        Specify the delimiter for the phenotype data file.
-                        Default is comma. Set quotation marks around the 
-                        delimiter when applied.
-  --pheno_no_header     Specify whether the phenotype has a header row.
-  --pheno_columns PHENO_COLUMN1 PHENO_COLUMN2 PHENO_COLUMN3 ...
-                        Column number(s) in the phenotype file that contain the 
-                        phenotype data. Multiple column numbers can be specified
-                        to conduct regression with multiple phenotypes, with 
-                        first column being 0. Default is 0.
-  --covar_columns COVAR_COLUMN1 COVAR_COLUMN2 COVAR_COLUMN3 ...
-                        Column number(s) in the phenotype file that contain the 
-                        covariate data. Multiple column numbers can be specified
-                        to conduct regression with multiple covariates, with 
-                        first column being 0. No column number is set as 
-                        default.
   --thresholds THRESHOLD1 THRESHOLD2 THRESHOLD3 ...
                         The p-value thresholds that filters which SNPs are
                         used from the GWAS. Specifying the p-values simply by
