@@ -6,6 +6,11 @@ PRSoS is compatible with Linux, Mac OS, and Windows. It runs using [Apache Spark
 ## Contact Information
 Lawrence M. Chen: lawrence.m.chen@mail.mcgill.ca
 
+## Publication
+If you use PRSoS in any published work, please cite the manuscript describing the methods:
+
+Chen, L. M., Yao, N., Garg, E., Zhu, Y., Nguyen, T. T. T., Pokhvisneva, I., Hari Dass, S., Unternaehrer, E., Gaudreau, H., Forest, M., McEwen, L. M., MacIsaac, J. L., Kobor, M. S., Greenwood, C. M. T., Silveira, P. P., Meaney, M. J., O'Donnell, K. J. (2018). PRS-on-Spark (PRSoS): A novel, efficient and flexible approach for generating polygenic risk scores. _BMC Bioinformatics_, _19_, 295. doi:10.1186/s12859-018-2289-9 [[Free Access PDF](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-018-2289-9)]
+
 
 ## Installation
 
