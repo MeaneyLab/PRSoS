@@ -18,16 +18,15 @@ import itertools
 import time
 import argparse
 
-
 # Packages for the regression
 #import matplotlib
 #matplotlib.use('Agg')
 #import matplotlib.pyplot as plt
-#import numpy as np
 #import pandas as pd
 #
 #from plottings import *
 #import statsmodels.formula.api as smf
+import numpy as np
 import logging
 
 # Takes a line in the genotype file and return the frequency of A1 allele
