@@ -76,7 +76,7 @@ Below are platform-specific installation guides:
 
 Note 1: While it is not necessary to use Hadoop and its HDFS filesystem, running Spark in Windows will give some messages such as “**Failed to locate the winutils binary**” when it fails to find %HADOOP_HOME and %HADOOP_HOME%\bin in the Windows environment. 
 [Here](http://alvincjin.blogspot.ca/2016/08/setup-hadoophome-in-windows.html) is how to resolve this:
- + Download [winutils.exe] (https://github.com/steveloughran/winutils) and store it in a Hadoop bin directory (e.g., C:\Users\hadoop\bin).
+ + Download [winutils.exe](https://github.com/steveloughran/winutils) and store it in a Hadoop bin directory (e.g., C:\Users\hadoop\bin).
  + Then open an elevated command prompt and run the following: 
 
     ```
